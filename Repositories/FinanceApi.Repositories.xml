@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FinanceApi.Repositories</name>
+    </assembly>
+    <members>
+        <member name="T:FinanceApi.Repositories.Base.BaseRepo`1">
+            <summary>
+            Base Repository
+            </summary>
+            <typeparam name="T">type of repository</typeparam>
+        </member>
+        <member name="F:FinanceApi.Repositories.Base.BaseRepo`1._db">
+            <summary>
+            database connection
+            </summary>
+        </member>
+        <member name="M:FinanceApi.Repositories.Base.BaseRepo`1.#ctor(System.Data.IDbConnection)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FinanceApi.Repositories.Base.BaseRepo`1" /> class.
+            </summary>
+            <param name="db">db connection</param>
+        </member>
+        <member name="M:FinanceApi.Repositories.Base.BaseRepo`1.GetList``1(``0)">
+            <summary>
+            Get result from db
+            </summary>
+            <typeparam name="T1">type of condition</typeparam>
+            <param name="filter">filter condition</param>
+            <returns>result of type T</returns>
+        </member>
+        <member name="M:FinanceApi.Repositories.Base.BaseRepo`1.Insert(System.Collections.Generic.IList{`0})">
+            <summary>
+            Insert value to db
+            </summary>
+            <param name="values">list of value</param>
+            <returns>effect count</returns>
+        </member>
+        <member name="T:FinanceApi.Repositories.Stocks.StockRepo">
+            <summary>
+            Implement IStockRepo
+            </summary>
+            <seealso cref="T:Finance.Interfaces.Repositories.IStockRepo" />
+        </member>
+        <member name="M:FinanceApi.Repositories.Stocks.StockRepo.#ctor(System.Data.IDbConnection)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FinanceApi.Repositories.Stocks.StockRepo" /> class.
+            </summary>
+            <param name="db">db connection</param>
+        </member>
+        <member name="M:FinanceApi.Repositories.Stocks.StockRepo.GetList(FinanceApi.Models.Filter.StockFilter)">
+            <inheritdoc cref="M:Finance.Interfaces.Repositories.IStockRepo.GetList(FinanceApi.Models.Filter.StockFilter)"/>
+        </member>
+    </members>
+</doc>

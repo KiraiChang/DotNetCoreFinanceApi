@@ -1,17 +1,12 @@
 using System;
 
-namespace FinanceApi.Models
+namespace FinanceApi.Models.Entity
 {
     /// <summary>
     /// 股票的Model
     /// </summary>
-    public class Stocks
+    public class Stock
     {
-        /// <summary>
-        /// 流水號
-        /// </summary>
-        public long Id { get; set; }
-
         /// <summary>
         /// 股票Id
         /// </summary>
@@ -26,7 +21,7 @@ namespace FinanceApi.Models
         /// 開盤價
         /// </summary>
         public decimal OpenPrice { get; set; }
-        
+
         /// <summary>
         /// 最高價
         /// </summary>
@@ -45,8 +40,8 @@ namespace FinanceApi.Models
         /// <summary>
         /// 漲跌價差
         /// </summary>
-        public decimal Decline  { get; set; }
-        
+        public decimal Decline { get; set; }
+
         /// <summary>
         /// 成交股數
         /// </summary>
@@ -55,11 +50,11 @@ namespace FinanceApi.Models
         /// <summary>
         /// 成交金額
         /// </summary>
-        public long Amount  { get; set; }
+        public long Amount { get; set; }
 
         /// <summary>
         /// 成交筆數
         /// </summary>
-        public long Count  { get; set; }
+        public long Count { get; set; }
     }
 }

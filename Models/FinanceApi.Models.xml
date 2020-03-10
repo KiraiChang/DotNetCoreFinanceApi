@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FinanceApi.Models</name>
+    </assembly>
+    <members>
+        <member name="T:FinanceApi.Models.Entity.Stock">
+            <summary>
+            股票的Model
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Entity.Stock.StockId">
+            <summary>
+            股票Id
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Entity.Stock.Date">
+            <summary>
+            日期
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Entity.Stock.OpenPrice">
+            <summary>
+            開盤價
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Entity.Stock.MaxPrice">
+            <summary>
+            最高價
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Entity.Stock.MinPrice">
+            <summary>
+            最低價
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Entity.Stock.ClosePrice">
+            <summary>
+            收盤價
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Entity.Stock.Decline">
+            <summary>
+            漲跌價差
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Entity.Stock.Volume">
+            <summary>
+            成交股數
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Entity.Stock.Amount">
+            <summary>
+            成交金額
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Entity.Stock.Count">
+            <summary>
+            成交筆數
+            </summary>
+        </member>
+        <member name="T:FinanceApi.Models.Enums.Stocks.StockProps">
+            <summary>
+            StockProps Index
+            </summary>
+        </member>
+        <member name="F:FinanceApi.Models.Enums.Stocks.StockProps.Date">
+            <summary>
+            日期
+            </summary>
+        </member>
+        <member name="F:FinanceApi.Models.Enums.Stocks.StockProps.Volume">
+            <summary>
+            成交股數
+            </summary>
+        </member>
+        <member name="F:FinanceApi.Models.Enums.Stocks.StockProps.Amount">
+            <summary>
+            成交金額
+            </summary>
+        </member>
+        <member name="F:FinanceApi.Models.Enums.Stocks.StockProps.OpenPrice">
+            <summary>
+            開盤價
+            </summary>
+        </member>
+        <member name="F:FinanceApi.Models.Enums.Stocks.StockProps.MaxPrice">
+            <summary>
+            最高價
+            </summary>
+        </member>
+        <member name="F:FinanceApi.Models.Enums.Stocks.StockProps.MinPrice">
+            <summary>
+            最低價
+            </summary>
+        </member>
+        <member name="F:FinanceApi.Models.Enums.Stocks.StockProps.ClosePrice">
+            <summary>
+            收盤價
+            </summary>
+        </member>
+        <member name="F:FinanceApi.Models.Enums.Stocks.StockProps.Decline">
+            <summary>
+            漲跌價差
+            </summary>
+        </member>
+        <member name="F:FinanceApi.Models.Enums.Stocks.StockProps.Count">
+            <summary>
+            成交筆數
+            </summary>
+        </member>
+        <member name="T:FinanceApi.Models.Filter.StockFilter">
+            <summary>
+            filter of stock
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Filter.StockFilter.StockId">
+            <summary>
+            serial id
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Filter.StockFilter.Date">
+            <summary>
+            date
+            </summary>
+        </member>
+        <member name="T:FinanceApi.Models.Grab.TWSEStock">
+            <summary>
+            台灣證交所股票Api返還結構
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Grab.TWSEStock.data">
+            <summary>
+            股票資訊
+            </summary>
+        </member>
+        <member name="T:FinanceApi.Models.Services.ServiceResult">
+            <summary>
+            Service Result of result is boolean
+            </summary>
+        </member>
+        <member name="T:FinanceApi.Models.Services.ServiceResult`1">
+            <summary>
+            Filter result structure
+            </summary>
+            <typeparam name="T">type of result</typeparam>
+        </member>
+        <member name="P:FinanceApi.Models.Services.ServiceResult`1.InnerResult">
+            <summary>
+            Filter result
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Services.ServiceResult`1.IsSuccess">
+            <summary>
+            Statue
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Services.ServiceResult`1.InnerException">
+            <summary>
+            Exception
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Services.ServiceResult`1.ErrorCode">
+            <summary>
+            Error code
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Models.Services.ServiceResult`1.ErrorMessage">
+            <summary>
+            Error Message
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,8 +1,10 @@
-namespace FinanceApi.Models.Enums {
+namespace FinanceApi.Models.Enums.Stocks
+{
     /// <summary>
     /// StockProps Index
     /// </summary>
-    public enum StockProps {
+    public enum StockProps
+    {
         /// <summary>
         /// 日期
         /// </summary>

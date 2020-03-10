@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FinanceApi.Services</name>
+    </assembly>
+    <members>
+        <member name="T:FinanceApi.Services.Stocks.StockService">
+            <summary>
+            Implement IStockService
+            </summary>
+            <seealso cref="T:Finance.Interfaces.Services.IStockService" />
+        </member>
+        <member name="F:FinanceApi.Services.Stocks.StockService._repo">
+            <summary>
+            Stock Repository
+            </summary>
+        </member>
+        <member name="M:FinanceApi.Services.Stocks.StockService.#ctor(Finance.Interfaces.Repositories.IStockRepo)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FinanceApi.Services.Stocks.StockService" /> class.
+            </summary>
+            <param name="repo">stock repository</param>
+        </member>
+        <member name="M:FinanceApi.Services.Stocks.StockService.GetList(FinanceApi.Models.Filter.StockFilter)">
+            <inheritdoc cref="M:Finance.Interfaces.Services.IStockService.GetList(FinanceApi.Models.Filter.StockFilter)"/>
+        </member>
+        <member name="M:FinanceApi.Services.Stocks.StockService.Insert(System.Collections.Generic.IList{FinanceApi.Models.Entity.Stock})">
+            <inheritdoc cref="M:Finance.Interfaces.Services.IStockService.Insert(System.Collections.Generic.IList{FinanceApi.Models.Entity.Stock})"/>
+        </member>
+    </members>
+</doc>
