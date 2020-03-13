@@ -23,6 +23,18 @@
             <param name="values">list of stock</param>
             <returns>effect count</returns>
         </member>
+        <member name="T:Finance.Interfaces.Services.Grabs.IStockGrabService">
+            <summary>
+            interface of stock grab service
+            </summary>
+        </member>
+        <member name="M:Finance.Interfaces.Services.Grabs.IStockGrabService.GetList(FinanceApi.Models.Filter.StockFilter)">
+            <summary>
+            grab list of stock according filter
+            </summary>
+            <param name="filter">grab stock filer</param>
+            <returns>list of stock</returns>
+        </member>
         <member name="T:Finance.Interfaces.Services.IStockService">
             <summary>
             Stock relate service

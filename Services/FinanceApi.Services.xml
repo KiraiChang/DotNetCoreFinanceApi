@@ -4,6 +4,24 @@
         <name>FinanceApi.Services</name>
     </assembly>
     <members>
+        <member name="T:FinanceApi.Services.Grabs.StockGrabService">
+            <summary>
+            Stock grab service
+            </summary>
+        </member>
+        <member name="M:FinanceApi.Services.Grabs.StockGrabService.GetList(FinanceApi.Models.Filter.StockFilter)">
+            <inheritdoc cref="M:Finance.Interfaces.Services.Grabs.IStockGrabService.GetList(FinanceApi.Models.Filter.StockFilter)"/>
+        </member>
+        <member name="T:FinanceApi.Services.Grabs.StockGrabService.TWSEStock">
+            <summary>
+            台灣證交所股票Api返還結構
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Services.Grabs.StockGrabService.TWSEStock.data">
+            <summary>
+            股票資訊
+            </summary>
+        </member>
         <member name="T:FinanceApi.Services.Stocks.StockService">
             <summary>
             Implement IStockService

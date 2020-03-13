@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using Finance.Interfaces.Repositories;
 using FinanceApi.Models.Entity;

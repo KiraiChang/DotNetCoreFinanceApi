@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Finance.Interfaces.Repositories;
 using Finance.Interfaces.Services;
-using FinanceApi.Models.Services;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
+using FinanceApi.Models.Services;
 
 namespace FinanceApi.Services.Stocks
 {

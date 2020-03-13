@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using FinanceApi.Models.Services;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
+using FinanceApi.Models.Services;
 
 namespace Finance.Interfaces.Services
 {
