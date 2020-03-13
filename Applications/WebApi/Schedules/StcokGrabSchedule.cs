@@ -44,17 +44,7 @@ namespace WebApi.Schedules
         /// <param name="stockId">stockId</param>
         public void Grab(string stockId)
         {
-            var date = DateTime.Now;
-            var result = _grabService.GetList(new FinanceApi.Models.Filter.StockFilter()
-            {
-                Date = date.Date,
-                StockId = stockId
-            });
-            if (result.IsSuccess && result.InnerResult.Count > 0)
-            {
-                var insertResult = _service.Insert(result.InnerResult);
-                _logger.LogInformation($"StockId:{stockId}, Date:{date.Date}, InsertCount:{insertResult}");
-            }
+            Grab(DateTime.Now, stockId);
         }
 
         /// <summary>

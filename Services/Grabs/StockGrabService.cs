@@ -58,6 +58,8 @@ namespace FinanceApi.Services.Grabs
                         Count = long.Parse(item[(int)StockProps.Count].Replace(",", string.Empty)),
                     });
                 }
+
+                result.IsSuccess = true;
             }
 
             return result;

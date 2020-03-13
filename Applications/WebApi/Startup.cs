@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Runtime.Loader;
 using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using Hangfire;
 using Hangfire.MySql.Core;
 using Microsoft.AspNetCore.Builder;
@@ -40,6 +41,11 @@ namespace FinanceApi
         public IConfiguration Configuration { get; }
 
         /// <summary>
+        /// Autofac container
+        /// </summary>
+        public ILifetimeScope AutofacContainer { get; private set; }
+
+        /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container.
         /// </summary>
         /// <param name="services">web site service</param>
@@ -48,7 +54,13 @@ namespace FinanceApi
             services.AddOptions();
             services.AddControllers();
 
-            services.AddHangfire(x => x.UseStorage(new MySqlStorage(Configuration.GetConnectionString("Hangfire"), new MySqlStorageOptions() { TablePrefix = "Hangfire", PrepareSchemaIfNecessary = true })));
+            services.AddHangfire(x =>
+                x.UseStorage(new MySqlStorage(Configuration.GetConnectionString("Hangfire"),
+                new MySqlStorageOptions()
+                {
+                    TablePrefix = "Hangfire",
+                    PrepareSchemaIfNecessary = true
+                })));
         }
 
         /// <summary>
@@ -56,7 +68,7 @@ namespace FinanceApi
         /// </summary>
         /// <param name="builder">autofac container builder</param>
         /// <returns>build-ed container</returns>
-        public IContainer ConfigureContainer(ContainerBuilder builder)
+        public void ConfigureContainer(ContainerBuilder builder)
         {
             // Register your own things directly with Autofac, like:
             builder
@@ -72,10 +84,6 @@ namespace FinanceApi
                 .Where(t => t.Name.EndsWith("Repo"))
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
-
-            var container = builder.Build();
-            GlobalConfiguration.Configuration.UseAutofacActivator(container);
-            return container;
         }
 
         /// <summary>
@@ -109,6 +117,10 @@ namespace FinanceApi
             {
                 endpoints.MapControllers();
             });
+
+            this.AutofacContainer = app.ApplicationServices.GetAutofacRoot();
+
+            GlobalConfiguration.Configuration.UseAutofacActivator(this.AutofacContainer);
 
             RecurringJob.AddOrUpdate<StcokGrabSchedule>(x => x.Grab("0050"), Cron.Daily(16));
         }
