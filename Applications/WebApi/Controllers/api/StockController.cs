@@ -45,10 +45,20 @@ namespace FinanceApi.Controllers.Api
         [HttpGet]
         public ServiceResult<IList<Stock>> Get(DateTime? date)
         {
-            return _service.GetList(new StockFilter()
+            var result = _service.GetList(new StockFilter()
             {
                 Date = date?.Date
             });
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.InnerException, result.ErrorMessage);
+            }
+            return new ServiceResult<IList<Stock>>()
+            {
+                ErrorCode = result.ErrorCode,
+                ErrorMessage = result.ErrorMessage,
+                InnerResult = result.InnerResult
+            };
         }
     }
 }

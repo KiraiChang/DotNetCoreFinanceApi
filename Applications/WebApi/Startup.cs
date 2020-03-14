@@ -4,7 +4,7 @@ using System.Runtime.Loader;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Hangfire;
-using Hangfire.MySql.Core;
+using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -55,19 +55,15 @@ namespace FinanceApi
             services.AddControllers();
 
             services.AddHangfire(x =>
-                x.UseStorage(new MySqlStorage(Configuration.GetConnectionString("Hangfire"),
-                new MySqlStorageOptions()
                 {
-                    TablePrefix = "Hangfire",
-                    PrepareSchemaIfNecessary = true
-                })));
+                    x.UseMemoryStorage();
+                });
         }
 
         /// <summary>
         /// register by autofac
         /// </summary>
         /// <param name="builder">autofac container builder</param>
-        /// <returns>build-ed container</returns>
         public void ConfigureContainer(ContainerBuilder builder)
         {
             // Register your own things directly with Autofac, like:
