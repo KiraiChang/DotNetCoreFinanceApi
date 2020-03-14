@@ -53,6 +53,7 @@ namespace FinanceApi.Controllers.Api
             {
                 _logger.LogError(result.InnerException, result.ErrorMessage);
             }
+
             return new ServiceResult<IList<Stock>>()
             {
                 ErrorCode = result.ErrorCode,

@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Runtime.Loader;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using FinanceApi.Repositories.Base;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
@@ -30,7 +33,7 @@ namespace FinanceApi
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();
             this.Configuration = builder.Build();
         }
@@ -58,6 +61,7 @@ namespace FinanceApi
                 {
                     x.UseMemoryStorage();
                 });
+            services.Configure<ConnectionSetting>(Configuration.GetSection("ConnectionStrings"));
         }
 
         /// <summary>
@@ -67,10 +71,6 @@ namespace FinanceApi
         public void ConfigureContainer(ContainerBuilder builder)
         {
             // Register your own things directly with Autofac, like:
-            builder
-                .Register<IDbConnection>(c => new MySqlConnection(Configuration.GetConnectionString("Default")))
-                .InstancePerLifetimeScope();
-
             builder.RegisterAssemblyTypes(AssemblyLoadContext.Default.LoadFromAssemblyPath(AppDomain.CurrentDomain.BaseDirectory + "FinanceApi.Services.Dll"))
                 .Where(t => t.Name.EndsWith("Service"))
                 .InstancePerLifetimeScope()
@@ -113,6 +113,8 @@ namespace FinanceApi
             {
                 endpoints.MapControllers();
             });
+
+            DbProviderFactories.RegisterFactory("System.Data.MySql", MySqlClientFactory.Instance);
 
             this.AutofacContainer = app.ApplicationServices.GetAutofacRoot();
 

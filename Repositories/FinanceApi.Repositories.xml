@@ -10,16 +10,16 @@
             </summary>
             <typeparam name="T">type of repository</typeparam>
         </member>
-        <member name="F:FinanceApi.Repositories.Base.BaseRepo`1._db">
+        <member name="F:FinanceApi.Repositories.Base.BaseRepo`1._setting">
             <summary>
-            database connection
+            database connection setting
             </summary>
         </member>
-        <member name="M:FinanceApi.Repositories.Base.BaseRepo`1.#ctor(System.Data.IDbConnection)">
+        <member name="M:FinanceApi.Repositories.Base.BaseRepo`1.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{FinanceApi.Repositories.Base.ConnectionSetting})">
             <summary>
             Initializes a new instance of the <see cref="T:FinanceApi.Repositories.Base.BaseRepo`1" /> class.
             </summary>
-            <param name="db">db connection</param>
+            <param name="setting">db connection setting</param>
         </member>
         <member name="M:FinanceApi.Repositories.Base.BaseRepo`1.GetList``1(``0)">
             <summary>
@@ -36,20 +36,73 @@
             <param name="values">list of value</param>
             <returns>effect count</returns>
         </member>
+        <member name="T:FinanceApi.Repositories.Base.ConnectionSetting">
+            <summary>
+            Connection Setting
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Repositories.Base.ConnectionSetting.Connection">
+            <summary>
+            Connection String
+            </summary>
+        </member>
+        <member name="P:FinanceApi.Repositories.Base.ConnectionSetting.Type">
+            <summary>
+            Connection Type
+            </summary>
+        </member>
         <member name="T:FinanceApi.Repositories.Stocks.StockRepo">
             <summary>
             Implement IStockRepo
             </summary>
             <seealso cref="T:Finance.Interfaces.Repositories.IStockRepo" />
         </member>
-        <member name="M:FinanceApi.Repositories.Stocks.StockRepo.#ctor(System.Data.IDbConnection)">
+        <member name="M:FinanceApi.Repositories.Stocks.StockRepo.#ctor(Microsoft.Extensions.Options.IOptionsMonitor{FinanceApi.Repositories.Base.ConnectionSetting})">
             <summary>
             Initializes a new instance of the <see cref="T:FinanceApi.Repositories.Stocks.StockRepo" /> class.
             </summary>
-            <param name="db">db connection</param>
+            <param name="setting">db connection setting</param>
         </member>
         <member name="M:FinanceApi.Repositories.Stocks.StockRepo.GetList(FinanceApi.Models.Filter.StockFilter)">
             <inheritdoc cref="M:Finance.Interfaces.Repositories.IStockRepo.GetList(FinanceApi.Models.Filter.StockFilter)"/>
+        </member>
+        <member name="T:FinanceApi.Repositories.TypeHandlers.JArrayTypeHandler">
+            <summary>
+            JArray Type Handler
+            </summary>
+        </member>
+        <member name="M:FinanceApi.Repositories.TypeHandlers.JArrayTypeHandler.Parse(System.Object)">
+            <summary>
+            Parser db value to JArray
+            </summary>
+            <param name="value">db value</param>
+            <returns>JArray</returns>
+        </member>
+        <member name="M:FinanceApi.Repositories.TypeHandlers.JArrayTypeHandler.SetValue(System.Data.IDbDataParameter,Newtonsoft.Json.Linq.JArray)">
+            <summary>
+            Set JArray to db parameter
+            </summary>
+            <param name="parameter">db parameter</param>
+            <param name="value">JArray</param>
+        </member>
+        <member name="T:FinanceApi.Repositories.TypeHandlers.JObjectTypeHandler">
+            <summary>
+            Handler JObject
+            </summary>
+        </member>
+        <member name="M:FinanceApi.Repositories.TypeHandlers.JObjectTypeHandler.Parse(System.Object)">
+            <summary>
+            Parse JObject from db value
+            </summary>
+            <param name="value">db value</param>
+            <returns>instance</returns>
+        </member>
+        <member name="M:FinanceApi.Repositories.TypeHandlers.JObjectTypeHandler.SetValue(System.Data.IDbDataParameter,Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            set JObject to db parameter
+            </summary>
+            <param name="parameter">db parameter</param>
+            <param name="value">value</param>
         </member>
     </members>
 </doc>

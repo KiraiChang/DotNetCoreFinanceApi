@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using Dapper;
+using Microsoft.Extensions.Options;
 
 namespace FinanceApi.Repositories.Base
 {
@@ -13,17 +15,17 @@ namespace FinanceApi.Repositories.Base
     public class BaseRepo<T> where T : class
     {
         /// <summary>
-        /// database connection
+        /// database connection setting
         /// </summary>
-        private readonly IDbConnection _db = null;
+        private readonly IOptionsMonitor<ConnectionSetting> _setting = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseRepo{T}" /> class.
         /// </summary>
-        /// <param name="db">db connection</param>
-        public BaseRepo(IDbConnection db)
+        /// <param name="setting">db connection setting</param>
+        public BaseRepo(IOptionsMonitor<ConnectionSetting> setting)
         {
-            _db = db;
+            _setting = setting;
         }
 
         /// <summary>
@@ -42,16 +44,26 @@ namespace FinanceApi.Repositories.Base
                                     string.Join(", ", props.Select(x => x.Name)),
                                     " FROM ",
                                     t.Name);
-
-            if (filter != null && conditions.Any(x => x.GetValue(filter, null) != null))
+            var result = null as IList<T>;
+            var provider = DbProviderFactories.GetFactory(_setting.CurrentValue.Type);
+            using (var conn = provider.CreateConnection())
             {
-                sql = string.Concat(sql,
-                    " WHERE ",
-                    string.Join(" AND ", conditions.Where(x => x.GetValue(filter, null) != null).Select(x => $"{x.Name}=@{x.Name}")));
-                return _db.Query<T>(sql, filter) as IList<T>;
+                conn.ConnectionString = _setting.CurrentValue.Connection;
+                conn.Open();
+                if (filter != null && conditions.Any(x => x.GetValue(filter, null) != null))
+                {
+                    sql = string.Concat(sql,
+                        " WHERE ",
+                        string.Join(" AND ", conditions.Where(x => x.GetValue(filter, null) != null).Select(x => $"{x.Name}=@{x.Name}")));
+                    result = conn.Query<T>(sql, filter) as IList<T>;
+                }
+                else
+                {
+                    result = conn.Query<T>(sql) as IList<T>;
+                }
             }
 
-            return _db.Query<T>(sql) as IList<T>;
+            return result;
         }
 
         /// <summary>
@@ -71,7 +83,16 @@ namespace FinanceApi.Repositories.Base
                                     "VALUES(",
                                     string.Join(", ", props.Select(x => $"@{x.Name}")),
                                     ")");
-            return _db.Execute(sql, values);
+            var result = 0;
+            var provider = DbProviderFactories.GetFactory(_setting.CurrentValue.Type);
+            using (var conn = provider.CreateConnection())
+            {
+                conn.ConnectionString = _setting.CurrentValue.Connection;
+                conn.Open();
+                result = conn.Execute(sql, values);
+            }
+
+            return result;
         }
     }
 }

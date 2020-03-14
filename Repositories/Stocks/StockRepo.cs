@@ -4,6 +4,7 @@ using Finance.Interfaces.Repositories;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 using FinanceApi.Repositories.Base;
+using Microsoft.Extensions.Options;
 
 namespace FinanceApi.Repositories.Stocks
 {
@@ -16,8 +17,8 @@ namespace FinanceApi.Repositories.Stocks
         /// <summary>
         /// Initializes a new instance of the <see cref="StockRepo" /> class.
         /// </summary>
-        /// <param name="db">db connection</param>
-        public StockRepo(IDbConnection db) : base(db)
+        /// <param name="setting">db connection setting</param>
+        public StockRepo(IOptionsMonitor<ConnectionSetting> setting) : base(setting)
         {
         }
 
