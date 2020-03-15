@@ -6,32 +6,32 @@ using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
 
-namespace FinanceApi.Services.Stocks
+namespace FinanceApi.Services
 {
     /// <summary>
     /// Implement IStockService
     /// </summary>
     /// <seealso cref="Finance.Interfaces.Services.IStockService" />
-    public class StockService : IStockService
+    public class ExchangeService : IExchangeService
     {
         /// <summary>
         /// Stock Repository
         /// </summary>
-        private IStockRepo _repo = null;
+        private IExchangeRepo _repo = null;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StockService" /> class.
+        /// Initializes a new instance of the <see cref="ExchangeService" /> class.
         /// </summary>
-        /// <param name="repo">stock repository</param>
-        public StockService(IStockRepo repo)
+        /// <param name="repo">exchange repository</param>
+        public ExchangeService(IExchangeRepo repo)
         {
             _repo = repo;
         }
 
-        /// <inheritdoc cref="IStockService.GetList"/>
-        public ServiceResult<IList<Stock>> GetList(StockFilter filter)
+        /// <inheritdoc cref="IExchangeService.GetList"/>
+        public ServiceResult<IList<Exchange>> GetList(ExchangeFilter filter)
         {
-            var result = new ServiceResult<IList<Stock>>();
+            var result = new ServiceResult<IList<Exchange>>();
             try
             {
                 result.InnerResult = _repo.GetList(filter);
@@ -46,8 +46,8 @@ namespace FinanceApi.Services.Stocks
             return result;
         }
 
-        /// <inheritdoc cref="IStockService.Insert(IList{Stock})"/>
-        public ServiceResult<int> Insert(IList<Stock> values)
+        /// <inheritdoc cref="IExchangeService.Insert(IList{Exchange})"/>
+        public ServiceResult<int> Insert(IList<Exchange> values)
         {
             var result = new ServiceResult<int>();
             try

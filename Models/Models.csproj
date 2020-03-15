@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\workspace\DotNetCoreFinanceApi\Models\FinanceApi.Models.xml</DocumentationFile>
+    <DocumentationFile>.\bin\$(Configuration)\$(Target)\FinanceApi.Models.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\workspace\DotNetCoreFinanceApi\Models\FinanceApi.Models.xml</DocumentationFile>
+    <DocumentationFile>.\bin\$(Configuration)\$(Target)\FinanceApi.Models.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

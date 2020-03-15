@@ -50,6 +50,7 @@ namespace FinanceApi.Repositories.Base
             {
                 conn.ConnectionString = _setting.CurrentValue.Connection;
                 conn.Open();
+                AddTypeHandler();
                 if (filter != null && conditions.Any(x => x.GetValue(filter, null) != null))
                 {
                     sql = string.Concat(sql,
@@ -64,6 +65,13 @@ namespace FinanceApi.Repositories.Base
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Implement for SqlMapper.AddTypeHandler
+        /// </summary>
+        protected virtual void AddTypeHandler()
+        {
         }
 
         /// <summary>
@@ -89,6 +97,7 @@ namespace FinanceApi.Repositories.Base
             {
                 conn.ConnectionString = _setting.CurrentValue.Connection;
                 conn.Open();
+                AddTypeHandler();
                 result = conn.Execute(sql, values);
             }
 

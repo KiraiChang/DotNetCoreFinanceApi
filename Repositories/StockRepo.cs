@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Data;
 using Finance.Interfaces.Repositories;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 using FinanceApi.Repositories.Base;
 using Microsoft.Extensions.Options;
 
-namespace FinanceApi.Repositories.Stocks
+namespace FinanceApi.Repositories
 {
     /// <summary>
     /// Implement IStockRepo

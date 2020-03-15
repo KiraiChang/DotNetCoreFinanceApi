@@ -7,14 +7,15 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\workspace\DotNetCoreFinanceApi\Services\FinanceApi.Services.xml</DocumentationFile>
+    <DocumentationFile>.\bin\$(Configuration)\$(Target)\FinanceApi.Services.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\workspace\DotNetCoreFinanceApi\Services\FinanceApi.Services.xml</DocumentationFile>
+    <DocumentationFile>.\bin\$(Configuration)\$(Target)\FinanceApi.Services.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.22" />
     <PackageReference Include="RestSharp" Version="106.10.1" />
   </ItemGroup>
 

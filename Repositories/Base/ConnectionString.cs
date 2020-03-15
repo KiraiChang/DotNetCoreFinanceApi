@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FinanceApi.Repositories.Base
+﻿namespace FinanceApi.Repositories.Base
 {
     /// <summary>
     /// Connection Setting

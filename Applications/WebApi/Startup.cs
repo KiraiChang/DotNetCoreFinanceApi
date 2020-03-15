@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Runtime.Loader;
@@ -121,6 +120,7 @@ namespace FinanceApi
             GlobalConfiguration.Configuration.UseAutofacActivator(this.AutofacContainer);
 
             RecurringJob.AddOrUpdate<StcokGrabSchedule>(x => x.Grab("0050"), Cron.Daily(16));
+            RecurringJob.AddOrUpdate<ExchangeGrabSchedule>(x => x.Grab(DateTime.Now), Cron.Daily(16));
         }
     }
 }

@@ -14,24 +14,24 @@ namespace FinanceApi.Controllers.Api
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class StockController : ControllerBase
+    public class ExchangeController : ControllerBase
     {
         /// <summary>
         /// Logger
         /// </summary>
-        private readonly ILogger<StockController> _logger;
+        private readonly ILogger<ExchangeController> _logger;
 
         /// <summary>
         /// Service
         /// </summary>
-        private readonly IStockService _service = null;
+        private readonly IExchangeService _service = null;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StockController" /> class.
+        /// Initializes a new instance of the <see cref="ExchangeController" /> class.
         /// </summary>
-        /// <param name="logger">stock controller logger</param>
-        /// <param name="service">stock service</param>
-        public StockController(ILogger<StockController> logger, IStockService service)
+        /// <param name="logger">exchange controller logger</param>
+        /// <param name="service">exchange service</param>
+        public ExchangeController(ILogger<ExchangeController> logger, IExchangeService service)
         {
             _service = service;
             _logger = logger;
@@ -43,14 +43,14 @@ namespace FinanceApi.Controllers.Api
         /// <param name="date">filter date</param>
         /// <returns>list of stock</returns>
         [HttpGet]
-        public ServiceResult<IList<Stock>> Get(DateTime? date)
+        public ServiceResult<IList<Exchange>> Get(DateTime? date)
         {
             if (!date.HasValue)
             {
                 date = DateTime.Now.Date;
             }
 
-            var result = _service.GetList(new StockFilter()
+            var result = _service.GetList(new ExchangeFilter()
             {
                 Date = date?.Date
             });
@@ -59,7 +59,7 @@ namespace FinanceApi.Controllers.Api
                 _logger.LogError(result.InnerException, result.ErrorMessage);
             }
 
-            return new ServiceResult<IList<Stock>>()
+            return new ServiceResult<IList<Exchange>>()
             {
                 ErrorCode = result.ErrorCode,
                 ErrorMessage = result.ErrorMessage,
