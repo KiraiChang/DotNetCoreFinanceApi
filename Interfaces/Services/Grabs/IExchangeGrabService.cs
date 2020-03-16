@@ -3,7 +3,7 @@ using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
 
-namespace Finance.Interfaces.Services.Grabs
+namespace FinanceApi.Interfaces.Services.Grabs
 {
     /// <summary>
     /// interface of Exchange grab service

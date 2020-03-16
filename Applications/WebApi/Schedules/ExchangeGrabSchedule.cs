@@ -1,6 +1,6 @@
 ﻿using System;
-using Finance.Interfaces.Services;
-using Finance.Interfaces.Services.Grabs;
+using FinanceApi.Interfaces.Services;
+using FinanceApi.Interfaces.Services.Grabs;
 using Microsoft.Extensions.Logging;
 
 namespace WebApi.Schedules

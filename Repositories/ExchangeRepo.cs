@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Dapper;
-using Finance.Interfaces.Repositories;
+using FinanceApi.Interfaces.Repositories;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 using FinanceApi.Repositories.Base;

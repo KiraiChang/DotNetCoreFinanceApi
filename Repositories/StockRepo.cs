@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Finance.Interfaces.Repositories;
+using FinanceApi.Interfaces.Repositories;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 using FinanceApi.Repositories.Base;
@@ -10,7 +10,7 @@ namespace FinanceApi.Repositories
     /// <summary>
     /// Implement IStockRepo
     /// </summary>
-    /// <seealso cref="Finance.Interfaces.Repositories.IStockRepo" />
+    /// <seealso cref="FinanceApi.Interfaces.Repositories.IStockRepo" />
     public class StockRepo : BaseRepo<Stock>, IStockRepo
     {
         /// <summary>

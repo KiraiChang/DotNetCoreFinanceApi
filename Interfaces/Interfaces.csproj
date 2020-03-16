@@ -2,16 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <AssemblyName>Finance.Interfaces</AssemblyName>
-    <RootNamespace>Finance.Interfaces</RootNamespace>
+    <AssemblyName>FinanceApi.Interfaces</AssemblyName>
+    <RootNamespace>FinanceApi.Interfaces</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>.\bin\$(Configuration)\$(Target)\Finance.Interfaces.xml</DocumentationFile>
+    <DocumentationFile>.\bin\$(Configuration)\$(Target)\FinanceApi.Interfaces.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>.\bin\$(Configuration)\$(Target)\Finance.Interfaces.xml</DocumentationFile>
+    <DocumentationFile>.\bin\$(Configuration)\$(Target)\FinanceApi.Interfaces.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

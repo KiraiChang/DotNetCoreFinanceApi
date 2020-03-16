@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>FinanceApi.Cores</AssemblyName>
+    <RootNamespace>FinanceApi.Cores</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>.\bin\$(Configuration)\$(Target)\FinanceApi.Cores.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>.\bin\$(Configuration)\$(Target)\FinanceApi.Cores.xml</DocumentationFile>
+  </PropertyGroup>
+</Project>

@@ -1,4 +1,4 @@
-namespace FinanceApi.Models.Enums.Stocks
+namespace FinanceApi.Models.Enums
 {
     /// <summary>
     /// StockProps Index

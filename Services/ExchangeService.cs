@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Finance.Interfaces.Repositories;
-using Finance.Interfaces.Services;
+using FinanceApi.Interfaces.Repositories;
+using FinanceApi.Interfaces.Services;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
@@ -11,7 +11,7 @@ namespace FinanceApi.Services
     /// <summary>
     /// Implement IStockService
     /// </summary>
-    /// <seealso cref="Finance.Interfaces.Services.IStockService" />
+    /// <seealso cref="FinanceApi.Interfaces.Services.IStockService" />
     public class ExchangeService : IExchangeService
     {
         /// <summary>

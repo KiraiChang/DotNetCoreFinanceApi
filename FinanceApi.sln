@@ -6,14 +6,25 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Applications", "Applications", "{7E7CE178-ACAA-432A-A8D8-399C50415B47}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "Applications\WebApi\WebApi.csproj", "{63079021-D9E1-45C2-8F3B-3885EB39010A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B9D80023-0870-4D7A-8968-89DA3879FAA8} = {B9D80023-0870-4D7A-8968-89DA3879FAA8}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models", "Models\Models.csproj", "{8C0114E2-0230-4D51-98BB-F1D5E3A01357}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csproj", "{8C0114E2-0230-4D51-98BB-F1D5E3A01357}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interfaces", "Interfaces\Interfaces.csproj", "{AA03907D-88CE-4ACE-B857-DA2622A25358}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interfaces", "Interfaces\Interfaces.csproj", "{AA03907D-88CE-4ACE-B857-DA2622A25358}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{D44B2308-2971-4B5C-B5B3-6A498AF64C24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{D44B2308-2971-4B5C-B5B3-6A498AF64C24}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B9D80023-0870-4D7A-8968-89DA3879FAA8} = {B9D80023-0870-4D7A-8968-89DA3879FAA8}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "Repositories\Repositories.csproj", "{25BDC24A-BF7E-4D95-8A47-6CC44D9CFC74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repositories", "Repositories\Repositories.csproj", "{25BDC24A-BF7E-4D95-8A47-6CC44D9CFC74}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B9D80023-0870-4D7A-8968-89DA3879FAA8} = {B9D80023-0870-4D7A-8968-89DA3879FAA8}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cores", "Cores\Cores.csproj", "{B9D80023-0870-4D7A-8968-89DA3879FAA8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +52,10 @@ Global
 		{25BDC24A-BF7E-4D95-8A47-6CC44D9CFC74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25BDC24A-BF7E-4D95-8A47-6CC44D9CFC74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25BDC24A-BF7E-4D95-8A47-6CC44D9CFC74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9D80023-0870-4D7A-8968-89DA3879FAA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9D80023-0870-4D7A-8968-89DA3879FAA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9D80023-0870-4D7A-8968-89DA3879FAA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9D80023-0870-4D7A-8968-89DA3879FAA8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

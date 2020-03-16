@@ -3,7 +3,7 @@ using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
 
-namespace Finance.Interfaces.Services
+namespace FinanceApi.Interfaces.Services
 {
     /// <summary>
     /// Stock relate service

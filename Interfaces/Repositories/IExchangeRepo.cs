@@ -2,7 +2,7 @@
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 
-namespace Finance.Interfaces.Repositories
+namespace FinanceApi.Interfaces.Repositories
 {
     /// <summary>
     /// Exchange relate service

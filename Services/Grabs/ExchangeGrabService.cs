@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
-using Finance.Interfaces.Services.Grabs;
+using FinanceApi.Cores.Extensions;
+using FinanceApi.Interfaces.Services.Grabs;
 using FinanceApi.Models.Entity;
+using FinanceApi.Models.Enums;
 using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
 using HtmlAgilityPack;
@@ -46,62 +47,64 @@ namespace FinanceApi.Services.Grabs
 
                     // 日期 美元／新台幣 人民幣／新台幣 歐元／美元 美元／日幣 英鎊／美元 澳幣／美元 美元／港幣 美元／人民幣 美元／南非幣 紐幣／美元
                     var items = row.SelectNodes("td");
-                    if (items.Count > 0 && !string.IsNullOrEmpty(items[0].InnerText) && !string.Equals(Regex.Unescape(items[1].InnerText), "-"))
+                    if (items.Count > 0
+                        && !string.IsNullOrEmpty(items[(int)ExchangeProps.Date].InnerText)
+                        && !string.Equals(Regex.Unescape(items[(int)ExchangeProps.UsdTwd].InnerText), "-"))
                     {
                         result.InnerResult.Add(new Exchange()
                         {
-                            Date = DateTime.Parse(items[0].InnerText),
+                            Date = DateTime.Parse(items[(int)ExchangeProps.Date].InnerText),
                             Data = new List<ExchangeItem>()
                             {
                                 new ExchangeItem()
                                 {
-                                    Id = "USD/TWD",
-                                    Value = decimal.Parse(Regex.Unescape(items[1].InnerText))
+                                    Id = ExchangeProps.UsdTwd.ExtGetDescription(),
+                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.UsdTwd].InnerText))
                                 },
                                 new ExchangeItem()
                                 {
-                                    Id = "RMB/TWD",
-                                    Value = decimal.Parse(Regex.Unescape(items[2].InnerText).Replace("-", "0"))
+                                    Id = ExchangeProps.RmbTwd.ExtGetDescription(),
+                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.RmbTwd].InnerText).Replace("-", "0"))
                                 },
                                 new ExchangeItem()
                                 {
-                                    Id = "EUR/USD",
-                                    Value = decimal.Parse(Regex.Unescape(items[3].InnerText).Replace("-", "0"))
+                                    Id = ExchangeProps.EurUsd.ExtGetDescription(),
+                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.EurUsd].InnerText).Replace("-", "0"))
                                 },
                                 new ExchangeItem()
                                 {
-                                    Id = "USD/JPY",
-                                    Value = decimal.Parse(Regex.Unescape(items[4].InnerText).Replace("-", "0"))
+                                    Id = ExchangeProps.UsdJpy.ExtGetDescription(),
+                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.UsdJpy].InnerText).Replace("-", "0"))
                                 },
                                 new ExchangeItem()
                                 {
-                                    Id = "GBP/USD",
-                                    Value = decimal.Parse(Regex.Unescape(items[5].InnerText).Replace("-", "0"))
+                                    Id = ExchangeProps.GbpUsd.ExtGetDescription(),
+                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.GbpUsd].InnerText).Replace("-", "0"))
                                 },
                                 new ExchangeItem()
                                 {
-                                    Id = "AUD/USD",
-                                    Value = decimal.Parse(Regex.Unescape(items[6].InnerText).Replace("-", "0"))
+                                    Id = ExchangeProps.AudUsd.ExtGetDescription(),
+                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.AudUsd].InnerText).Replace("-", "0"))
                                 },
                                 new ExchangeItem()
                                 {
-                                    Id = "USD/HKD",
-                                    Value = decimal.Parse(Regex.Unescape(items[7].InnerText).Replace("-", "0"))
+                                    Id = ExchangeProps.UsdHkd.ExtGetDescription(),
+                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.UsdHkd].InnerText).Replace("-", "0"))
                                 },
                                 new ExchangeItem()
                                 {
-                                    Id = "USD/RMB",
-                                    Value = decimal.Parse(Regex.Unescape(items[8].InnerText).Replace("-", "0"))
+                                    Id = ExchangeProps.UsdRmb.ExtGetDescription(),
+                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.UsdRmb].InnerText).Replace("-", "0"))
                                 },
                                 new ExchangeItem()
                                 {
-                                    Id = "USD/ZAR",
-                                    Value = decimal.Parse(Regex.Unescape(items[9].InnerText).Replace("-", "0"))
+                                    Id = ExchangeProps.UsdZar.ExtGetDescription(),
+                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.UsdZar].InnerText).Replace("-", "0"))
                                 },
                                 new ExchangeItem()
                                 {
-                                    Id = "NZD/USD",
-                                    Value = decimal.Parse(Regex.Unescape(items[10].InnerText).Replace("-", "0"))
+                                    Id = ExchangeProps.NzdUsd.ExtGetDescription(),
+                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.NzdUsd].InnerText).Replace("-", "0"))
                                 },
                             }
                         });
