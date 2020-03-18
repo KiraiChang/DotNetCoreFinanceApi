@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Web;
 using FinanceApi.Cores.Extensions;
 using FinanceApi.Interfaces.Services.Grabs;
 using FinanceApi.Models.Entity;
@@ -9,6 +10,7 @@ using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
 using HtmlAgilityPack;
 using RestSharp;
+using RestSharp.Extensions;
 
 namespace FinanceApi.Services.Grabs
 {
@@ -27,10 +29,13 @@ namespace FinanceApi.Services.Grabs
                 filter.Date = DateTime.Now;
             }
 
-            var client = new RestClient("http://www.taifex.com.tw/cht/3/dailyFXRate");
-            var request = new RestRequest(string.Empty, Method.POST);
-            request.AddParameter(new Parameter("queryStartDate", filter.Date.Value.Date.ToString("yyyyMMdd"), ParameterType.RequestBody));
-            request.AddParameter(new Parameter("queryEndDate", filter.Date.Value.Date.ToString("yyyyMMdd"), ParameterType.RequestBody));
+            var queryStartDate = filter.Date.Value.AddDays(-10).Date.ToString("yyyy/MM/dd");
+            var queryEndDate = filter.Date.Value.Date.ToString("yyyy/MM/dd");
+
+            var client = new RestClient("https://www.taifex.com.tw/cht/3/dailyFXRate");
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddParameter("application/x-www-form-urlencoded", $"queryStartDate={queryStartDate.UrlEncode()}&queryEndDate={queryEndDate.UrlEncode()}", "application/x-www-form-urlencoded", ParameterType.RequestBody);
             var response = client.Execute(request);
             if (response.IsSuccessful)
             {
@@ -49,65 +54,36 @@ namespace FinanceApi.Services.Grabs
                     var items = row.SelectNodes("td");
                     if (items.Count > 0
                         && !string.IsNullOrEmpty(items[(int)ExchangeProps.Date].InnerText)
-                        && !string.Equals(Regex.Unescape(items[(int)ExchangeProps.UsdTwd].InnerText), "-"))
+                        && !string.IsNullOrWhiteSpace(Regex.Unescape(items[(int)ExchangeProps.UsdTwd].InnerText.Replace("-", string.Empty))))
                     {
-                        result.InnerResult.Add(new Exchange()
+                        var item = new Exchange()
                         {
                             Date = DateTime.Parse(items[(int)ExchangeProps.Date].InnerText),
-                            Data = new List<ExchangeItem>()
+                            Data = new List<ExchangeItem>(),
+                        };
+
+                        for (var i = (int)ExchangeProps.UsdTwd; i < (int)ExchangeProps.End; i++)
+                        {
+                            if (!string.IsNullOrWhiteSpace(Regex.Unescape(items[i].InnerText.Replace("-", string.Empty))))
                             {
-                                new ExchangeItem()
+                                var value = decimal.Parse(Regex.Unescape(items[i].InnerText));
+                                var subItem = new ExchangeItem()
                                 {
-                                    Id = ExchangeProps.UsdTwd.ExtGetDescription(),
-                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.UsdTwd].InnerText))
-                                },
-                                new ExchangeItem()
+                                    Id = ((ExchangeProps)i).ExtGetDescription(),
+                                    Value = value
+                                };
+
+                                if (subItem.Value > 0)
                                 {
-                                    Id = ExchangeProps.RmbTwd.ExtGetDescription(),
-                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.RmbTwd].InnerText).Replace("-", "0"))
-                                },
-                                new ExchangeItem()
-                                {
-                                    Id = ExchangeProps.EurUsd.ExtGetDescription(),
-                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.EurUsd].InnerText).Replace("-", "0"))
-                                },
-                                new ExchangeItem()
-                                {
-                                    Id = ExchangeProps.UsdJpy.ExtGetDescription(),
-                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.UsdJpy].InnerText).Replace("-", "0"))
-                                },
-                                new ExchangeItem()
-                                {
-                                    Id = ExchangeProps.GbpUsd.ExtGetDescription(),
-                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.GbpUsd].InnerText).Replace("-", "0"))
-                                },
-                                new ExchangeItem()
-                                {
-                                    Id = ExchangeProps.AudUsd.ExtGetDescription(),
-                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.AudUsd].InnerText).Replace("-", "0"))
-                                },
-                                new ExchangeItem()
-                                {
-                                    Id = ExchangeProps.UsdHkd.ExtGetDescription(),
-                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.UsdHkd].InnerText).Replace("-", "0"))
-                                },
-                                new ExchangeItem()
-                                {
-                                    Id = ExchangeProps.UsdRmb.ExtGetDescription(),
-                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.UsdRmb].InnerText).Replace("-", "0"))
-                                },
-                                new ExchangeItem()
-                                {
-                                    Id = ExchangeProps.UsdZar.ExtGetDescription(),
-                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.UsdZar].InnerText).Replace("-", "0"))
-                                },
-                                new ExchangeItem()
-                                {
-                                    Id = ExchangeProps.NzdUsd.ExtGetDescription(),
-                                    Value = decimal.Parse(Regex.Unescape(items[(int)ExchangeProps.NzdUsd].InnerText).Replace("-", "0"))
-                                },
+                                    item.Data.Add(subItem);
+                                }
                             }
-                        });
+                        }
+
+                        if (item.Data.Count > 0)
+                        {
+                            result.InnerResult.Add(item);
+                        }
                     }
                 }
             }

@@ -72,5 +72,10 @@ namespace FinanceApi.Models.Enums
         /// </summary>
         [Description("NZD/USD")]
         NzdUsd = 10,
+
+        /// <summary>
+        /// end of property
+        /// </summary>
+        End,
     }
 }

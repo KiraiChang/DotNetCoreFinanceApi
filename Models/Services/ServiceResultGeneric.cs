@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace FinanceApi.Models.Services
 {
@@ -32,5 +33,14 @@ namespace FinanceApi.Models.Services
         /// Error Message
         /// </summary>
         public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// override to string
+        /// </summary>
+        /// <returns>object data</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }
