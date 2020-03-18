@@ -63,7 +63,8 @@ namespace FinanceApi.Controllers.Api
             {
                 ErrorCode = result.ErrorCode,
                 ErrorMessage = result.ErrorMessage,
-                InnerResult = result.InnerResult
+                InnerResult = result.InnerResult,
+                IsSuccess = result.IsSuccess
             };
         }
     }
