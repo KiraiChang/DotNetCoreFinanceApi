@@ -4,7 +4,9 @@ using System.Data.Common;
 using System.Runtime.Loader;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using FinanceApi.Repositories;
 using FinanceApi.Repositories.Base;
+using FinanceApi.Services;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
@@ -12,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using WebApi.Schedules;
 
@@ -70,12 +73,12 @@ namespace FinanceApi
         public void ConfigureContainer(ContainerBuilder builder)
         {
             // Register your own things directly with Autofac, like:
-            builder.RegisterAssemblyTypes(AssemblyLoadContext.Default.LoadFromAssemblyPath(AppDomain.CurrentDomain.BaseDirectory + "FinanceApi.Services.Dll"))
+            builder.RegisterAssemblyTypes(typeof(StockService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
 
-            builder.RegisterAssemblyTypes(AssemblyLoadContext.Default.LoadFromAssemblyPath(AppDomain.CurrentDomain.BaseDirectory + "FinanceApi.Repositories.Dll"))
+            builder.RegisterAssemblyTypes(typeof(StockRepo).Assembly)
                 .Where(t => t.Name.EndsWith("Repo"))
                 .InstancePerLifetimeScope()
                 .AsImplementedInterfaces();
@@ -92,8 +95,6 @@ namespace FinanceApi
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 
