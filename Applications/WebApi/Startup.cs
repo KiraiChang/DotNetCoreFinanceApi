@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
+using WebApi.Authorization;
 using WebApi.Schedules;
 
 namespace FinanceApi
@@ -107,7 +108,10 @@ namespace FinanceApi
 
             app.UseOwin();
 
-            app.UseHangfireDashboard();
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new NeedlessDashboardAuthorizationFilter() }
+            });
 
             app.UseEndpoints(endpoints =>
             {
