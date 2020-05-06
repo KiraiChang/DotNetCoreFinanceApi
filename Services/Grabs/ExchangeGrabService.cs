@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web;
 using FinanceApi.Cores.Extensions;
@@ -9,6 +10,7 @@ using FinanceApi.Models.Enums;
 using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using RestSharp;
 using RestSharp.Extensions;
 
@@ -19,9 +21,24 @@ namespace FinanceApi.Services.Grabs
     /// </summary>
     public class ExchangeGrabService : IExchangeGrabService
     {
+        /// <summary>
+        /// Logger for ExchangeGrabService
+        /// </summary>
+        private ILogger<ExchangeGrabService> _logger = null;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExchangeGrabService" /> class.
+        /// </summary>
+        /// <param name="logger">logger of ExchangeGrabService</param>
+        public ExchangeGrabService(ILogger<ExchangeGrabService> logger)
+        {
+            _logger = logger;
+        }
+
         /// <inheritdoc cref="IExchangeGrabService.GetList(ExchangeFilter)"/>
         public ServiceResult<IList<Exchange>> GetList(ExchangeFilter filter)
         {
+            var method = MethodBase.GetCurrentMethod();
             var result = new ServiceResult<IList<Exchange>>();
             result.InnerResult = new List<Exchange>();
             if (!filter.Date.HasValue)
@@ -41,6 +58,7 @@ namespace FinanceApi.Services.Grabs
             {
                 var doc = new HtmlDocument();
                 doc.LoadHtml(response.Content);
+                _logger.LogTrace(response.Content);
                 var count = 0;
                 foreach (var row in doc.DocumentNode.SelectNodes("//*[contains(@class, \"table_c\")]/tbody/tr"))
                 {
@@ -86,6 +104,10 @@ namespace FinanceApi.Services.Grabs
                         }
                     }
                 }
+            }
+            else
+            {
+                _logger.LogError(result.InnerException, $"{method.Name} raise exception in RESTSharp");
             }
 
             result.IsSuccess = true;

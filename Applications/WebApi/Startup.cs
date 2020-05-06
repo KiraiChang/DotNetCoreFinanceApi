@@ -108,10 +108,11 @@ namespace FinanceApi
 
             app.UseOwin();
 
-            app.UseHangfireDashboard("/hangfire", new DashboardOptions
-            {
-                Authorization = new[] { new NeedlessDashboardAuthorizationFilter() }
-            });
+            app.UseHangfireDashboard("/hangfire",
+                new DashboardOptions
+                {
+                    Authorization = new[] { new NeedlessDashboardAuthorizationFilter() }
+                });
 
             app.UseEndpoints(endpoints =>
             {
