@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace FinanceApi.Models.Entity
 {
@@ -15,9 +13,19 @@ namespace FinanceApi.Models.Entity
         public string Id { get; set; }
 
         /// <summary>
+        /// CFICode
+        /// </summary>
+        public string CFICode { get; set; }
+
+        /// <summary>
+        /// Name of Stock
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
         /// international code of stock
         /// </summary>
-        public string IISINCoded { get; set; }
+        public string ISINCode { get; set; }
 
         /// <summary>
         /// Market of stock
@@ -33,5 +41,10 @@ namespace FinanceApi.Models.Entity
         /// PublicDate of stock
         /// </summary>
         public DateTime PublicDate { get; set; }
+
+        /// <summary>
+        /// Memo
+        /// </summary>
+        public string Memo { get; set; }
     }
 }

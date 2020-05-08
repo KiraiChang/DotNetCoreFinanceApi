@@ -48,8 +48,8 @@ namespace WebApi.Schedules
             var result = _grabService.GetList();
             if (result.IsSuccess && result.InnerResult.Count > 0)
             {
-                //var insertResult = _service.Insert(result.InnerResult);
-                //_logger.LogInformation($"{method.Name} InsertCount:{insertResult}");
+                var insertResult = _service.Insert(result.InnerResult);
+                _logger.LogInformation($"{method.Name} InsertCount:{insertResult}");
             }
         }
     }
