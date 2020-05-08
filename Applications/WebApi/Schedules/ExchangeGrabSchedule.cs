@@ -41,6 +41,14 @@ namespace WebApi.Schedules
         /// <summary>
         /// grab stock
         /// </summary>
+        public void Grab()
+        {
+            Grab(DateTime.Now);
+        }
+
+        /// <summary>
+        /// grab stock
+        /// </summary>
         /// <param name="date">date</param>
         public void Grab(DateTime date)
         {
