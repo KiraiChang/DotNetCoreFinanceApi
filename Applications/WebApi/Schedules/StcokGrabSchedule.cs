@@ -31,7 +31,9 @@ namespace WebApi.Schedules
         /// <param name="grabService">grab service</param>
         /// <param name="service">stock service</param>
         /// <param name="logger">logger of stock grab schedule</param>
-        public StcokGrabSchedule(IStockGrabService grabService, IStockService service, ILogger<StcokGrabSchedule> logger)
+        public StcokGrabSchedule(IStockGrabService grabService,
+            IStockService service,
+            ILogger<StcokGrabSchedule> logger)
         {
             _service = service;
             _grabService = grabService;

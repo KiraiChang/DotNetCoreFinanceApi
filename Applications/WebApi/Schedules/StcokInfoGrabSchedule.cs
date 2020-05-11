@@ -2,6 +2,7 @@
 using System.Reflection;
 using FinanceApi.Interfaces.Services;
 using FinanceApi.Interfaces.Services.Grabs;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 
 namespace WebApi.Schedules
@@ -42,7 +43,7 @@ namespace WebApi.Schedules
         /// <summary>
         /// grab stock info
         /// </summary>
-        public void Grab()
+        public void GrabInfo()
         {
             var method = MethodBase.GetCurrentMethod();
             var result = _grabService.GetList();
@@ -50,6 +51,45 @@ namespace WebApi.Schedules
             {
                 var insertResult = _service.Insert(result.InnerResult);
                 _logger.LogInformation($"{method.Name} InsertCount:{insertResult}");
+            }
+        }
+
+        /// <summary>
+        /// grab stock
+        /// </summary>
+        public void Grab()
+        {
+            var method = MethodBase.GetCurrentMethod();
+            var results = _service.GetList();
+            if (results.IsSuccess)
+            {
+                var index = 0;
+                foreach (var item in results.InnerResult)
+                {
+                    index++;
+                    BackgroundJob.Schedule<StcokGrabSchedule>(x => x.Grab(DateTime.Now, item.Id), TimeSpan.FromSeconds(index));
+                }
+            }
+        }
+
+        /// <summary>
+        /// grab stock
+        /// </summary>
+        public void GrabAll()
+        {
+            var method = MethodBase.GetCurrentMethod();
+            var results = _service.GetList();
+            if (results.IsSuccess)
+            {
+                var index = 0;
+                foreach (var item in results.InnerResult)
+                {
+                    for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
+                    {
+                        index++;
+                        BackgroundJob.Schedule<StcokGrabSchedule>(x => x.Grab(date, item.Id), TimeSpan.FromSeconds(index));
+                    }
+                }
             }
         }
     }
