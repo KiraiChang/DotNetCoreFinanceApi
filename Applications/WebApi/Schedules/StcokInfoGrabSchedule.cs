@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using FinanceApi.Interfaces.Services;
 using FinanceApi.Interfaces.Services.Grabs;
+using FinanceApi.Models.Entity;
 using Hangfire;
 using Microsoft.Extensions.Logging;
 
@@ -49,8 +51,25 @@ namespace WebApi.Schedules
             var result = _grabService.GetList();
             if (result.IsSuccess && result.InnerResult.Count > 0)
             {
-                var insertResult = _service.Insert(result.InnerResult);
-                _logger.LogInformation($"{method.Name} InsertCount:{insertResult}");
+                var insertItems = new List<StockInfo>();
+                var count = 0;
+                foreach (var item in result.InnerResult)
+                {
+                    insertItems.Add(item);
+                    if (insertItems.Count >= 50)
+                    {
+                        count += _service.Insert(insertItems).InnerResult;
+                        insertItems.Clear();
+                    }
+                }
+
+                if (insertItems.Count > 0)
+                {
+                    count += _service.Insert(insertItems).InnerResult;
+                    insertItems.Clear();
+                }
+
+                _logger.LogInformation($"{method.Name} InsertCount:{count}");
             }
         }
 
@@ -75,7 +94,9 @@ namespace WebApi.Schedules
         /// <summary>
         /// grab stock
         /// </summary>
-        public void GrabAll()
+        /// <param name="begin">begin stock id</param>
+        /// <param name="end">end stock id</param>
+        public void GrabAll(int begin, int end)
         {
             var method = MethodBase.GetCurrentMethod();
             var results = _service.GetList();
@@ -84,10 +105,14 @@ namespace WebApi.Schedules
                 var index = 0;
                 foreach (var item in results.InnerResult)
                 {
-                    for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
+                    var stockId = int.Parse(item.Id);
+                    if (stockId >= begin && stockId <= end)
                     {
-                        index++;
-                        BackgroundJob.Schedule<StcokGrabSchedule>(x => x.Grab(date, item.Id), TimeSpan.FromSeconds(index));
+                        for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
+                        {
+                            index++;
+                            BackgroundJob.Schedule<StcokGrabSchedule>(x => x.Grab(date, item.Id), TimeSpan.FromSeconds(index));
+                        }
                     }
                 }
             }

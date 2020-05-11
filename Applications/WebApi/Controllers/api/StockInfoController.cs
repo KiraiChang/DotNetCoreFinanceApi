@@ -65,10 +65,21 @@ namespace FinanceApi.Controllers.Api
         /// Get stock info list
         /// </summary>
         /// <returns>list of stock info</returns>
-        [HttpGet("GetAll")]
-        public void GetAll()
+        [HttpGet("Grab")]
+        public void Grab()
         {
-            BackgroundJob.Schedule<StcokInfoGrabSchedule>(x => x.GrabAll(), TimeSpan.FromSeconds(3));
+            BackgroundJob.Schedule<StcokInfoGrabSchedule>(x => x.GrabInfo(), TimeSpan.FromSeconds(3));
+        }
+
+        /// <summary>
+        /// Get stock info list
+        /// </summary>
+        /// <param name="begin">begin id</param>
+        /// <param name="end">end id</param>
+        [HttpGet("GetAll/{begin}/{end}")]
+        public void GetAll(int begin, int end)
+        {
+            BackgroundJob.Schedule<StcokInfoGrabSchedule>(x => x.GrabAll(begin, end), TimeSpan.FromSeconds(3));
         }
     }
 }
