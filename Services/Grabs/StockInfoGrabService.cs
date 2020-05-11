@@ -62,7 +62,7 @@ namespace FinanceApi.Services.Grabs
                 var table = doc.DocumentNode.SelectNodes("//body//table[contains(@class, 'h4')]");
                 foreach (var row in table.Elements())
                 {
-                    if (EscapeStringList.Any(x => row.InnerHtml.Contains(x)))
+                    if (EscapeStringList.Any(x => row.InnerHtml.Contains(x)) || row.ChildNodes.Count < 4)
                     {
                         continue;
                     }
@@ -80,7 +80,7 @@ namespace FinanceApi.Services.Grabs
                     };
                     if (stockInfo.Id.Length > 5)
                     {
-                        break;
+                        continue;
                     }
 
                     result.InnerResult.Add(stockInfo);
