@@ -15,6 +15,11 @@ namespace WebApi.Schedules
     public class StcokInfoGrabSchedule
     {
         /// <summary>
+        /// Min date of stock
+        /// </summary>
+        private static DateTime MinDate { get; } = new DateTime(2010, 1, 4);
+
+        /// <summary>
         /// grab service
         /// </summary>
         private readonly IStockInfoGrabService _grabService = null;
@@ -105,13 +110,16 @@ namespace WebApi.Schedules
                 var index = 0;
                 foreach (var item in results.InnerResult)
                 {
-                    var stockId = int.Parse(item.Id);
+                    var stockId = int.Parse(item.Id.Substring(0, 4));
                     if (stockId >= begin && stockId <= end)
                     {
                         for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
                         {
-                            index++;
-                            BackgroundJob.Schedule<StcokGrabSchedule>(x => x.Grab(date, item.Id), TimeSpan.FromSeconds(index));
+                            if (date > MinDate)
+                            {
+                                index++;
+                                BackgroundJob.Schedule<StcokGrabSchedule>(x => x.Grab(date, item.Id), TimeSpan.FromSeconds(index));
+                            }
                         }
                     }
                 }
