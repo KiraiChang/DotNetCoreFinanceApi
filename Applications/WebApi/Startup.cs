@@ -127,6 +127,7 @@ namespace FinanceApi
 
             RecurringJob.AddOrUpdate<ExchangeGrabSchedule>(x => x.Grab(), Cron.Daily(16));
             RecurringJob.AddOrUpdate<StcokInfoGrabSchedule>(x => x.Grab(), Cron.Daily(16));
+            RecurringJob.AddOrUpdate<ClearJobsSchedule>(x => x.ClearSucceededJobs(), Cron.Daily(16));
         }
     }
 }
