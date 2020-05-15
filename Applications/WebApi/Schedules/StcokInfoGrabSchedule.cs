@@ -20,6 +20,11 @@ namespace WebApi.Schedules
         private static DateTime MinDate { get; } = new DateTime(2010, 1, 4);
 
         /// <summary>
+        /// Wait Grab Second
+        /// </summary>
+        private static int WaitGrabSecond { get; } = 5;
+
+        /// <summary>
         /// grab service
         /// </summary>
         private readonly IStockInfoGrabService _grabService = null;
@@ -118,7 +123,7 @@ namespace WebApi.Schedules
                             if (date > MinDate)
                             {
                                 index++;
-                                BackgroundJob.Schedule<StcokGrabSchedule>(x => x.Grab(date, item.Id), TimeSpan.FromSeconds(index));
+                                BackgroundJob.Schedule<StcokGrabSchedule>(x => x.Grab(date, item.Id), TimeSpan.FromSeconds(index * WaitGrabSecond));
                             }
                         }
                     }
