@@ -23,7 +23,7 @@ namespace WebApi.Schedules
         /// <summary>
         /// Wait Grab Second
         /// </summary>
-        private static int WaitGrabSecond { get; } = 10;
+        private static int WaitGrabSecond { get; } = 3;
 
         /// <summary>
         /// grab service
