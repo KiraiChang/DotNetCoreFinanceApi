@@ -40,19 +40,28 @@ namespace FinanceApi.Controllers.Api
         /// <summary>
         /// Get stock list
         /// </summary>
-        /// <param name="date">filter date</param>
+        /// <param name="beginDate">filter begin date</param>
+        /// <param name="endDate">filter end date</param>
+        /// <param name="stockId">stock id</param>
         /// <returns>list of stock</returns>
         [HttpGet]
-        public ServiceResult<IList<Stock>> Get(DateTime? date)
+        public ServiceResult<IList<Stock>> Get(string stockId, DateTime? beginDate, DateTime? endDate)
         {
-            if (!date.HasValue)
+            if (!beginDate.HasValue)
             {
-                date = DateTime.Now.Date;
+                beginDate = DateTime.Now.Date.AddDays(-1);
+            }
+
+            if (!endDate.HasValue)
+            {
+                endDate = DateTime.Now.Date;
             }
 
             var result = _service.GetList(new StockFilter()
             {
-                Date = date?.Date
+                StockId = stockId,
+                BeginDate = beginDate?.Date,
+                EndDate = endDate?.Date
             });
             if (!result.IsSuccess)
             {

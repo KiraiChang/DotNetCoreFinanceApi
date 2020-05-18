@@ -36,9 +36,14 @@ namespace FinanceApi.Services.Grabs
         public ServiceResult<IList<Stock>> GetList(StockFilter filter)
         {
             var result = new ServiceResult<IList<Stock>>();
-            if (!filter.Date.HasValue)
+            if (!filter.BeginDate.HasValue)
             {
-                filter.Date = DateTime.Now;
+                filter.BeginDate = DateTime.Now.AddDays(-1);
+            }
+
+            if (!filter.EndDate.HasValue)
+            {
+                filter.EndDate = DateTime.Now;
             }
 
             if (string.IsNullOrWhiteSpace(filter.StockId))
@@ -53,7 +58,7 @@ namespace FinanceApi.Services.Grabs
             var client = new RestClient("https://www.twse.com.tw/zh/exchangeReport/STOCK_DAY");
             var request = new RestRequest(string.Empty, Method.GET);
             request.AddParameter(new Parameter("response", "json", ParameterType.QueryString));
-            request.AddParameter(new Parameter("date", filter.Date.Value.Date.ToString("yyyyMMdd"), ParameterType.QueryString));
+            request.AddParameter(new Parameter("date", filter.BeginDate.Value.Date.ToString("yyyyMMdd"), ParameterType.QueryString));
             request.AddParameter(new Parameter("stockNo", filter.StockId, ParameterType.QueryString));
             var response = client.Execute<TWSEStock>(request);
             if (response.ResponseStatus == ResponseStatus.Completed && response.IsSuccessful)

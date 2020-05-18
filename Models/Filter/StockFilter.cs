@@ -13,8 +13,13 @@ namespace FinanceApi.Models.Filter
         public string StockId { get; set; }
 
         /// <summary>
-        /// date
+        /// begin date
         /// </summary>
-        public DateTime? Date { get; set; }
+        public DateTime? BeginDate { get; set; }
+
+        /// <summary>
+        /// end date
+        /// </summary>
+        public DateTime? EndDate { get; set; }
     }
 }

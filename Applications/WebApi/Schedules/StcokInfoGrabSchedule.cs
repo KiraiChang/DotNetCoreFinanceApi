@@ -156,7 +156,8 @@ namespace WebApi.Schedules
         {
             var result = _grabService.GetList(new FinanceApi.Models.Filter.StockFilter()
             {
-                Date = date.Date,
+                BeginDate = date.Date.AddDays(-1),
+                EndDate = date.Date,
                 StockId = stockId
             });
             if (result.IsSuccess && result.InnerResult.Count > 0)

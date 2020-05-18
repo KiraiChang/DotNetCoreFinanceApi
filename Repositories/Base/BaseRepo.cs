@@ -55,7 +55,10 @@ namespace FinanceApi.Repositories.Base
                 {
                     sql = string.Concat(sql,
                         " WHERE ",
-                        string.Join(" AND ", conditions.Where(x => x.GetValue(filter, null) != null).Select(x => $"{x.Name}=@{x.Name}")));
+                        string.Join(" AND ", conditions.Where(x => x.GetValue(filter, null) != null)
+                                                        .Select(x => x.Name.Contains("Begin") ? $"{x.Name.Replace("Begin", string.Empty)}>=@{x.Name}"
+                                                                        : x.Name.Contains("End") ? $"{x.Name.Replace("End", string.Empty)}<=@{x.Name}"
+                                                                        : $"{x.Name}=@{x.Name}")));
                     result = conn.Query<T>(sql, filter) as IList<T>;
                 }
                 else
