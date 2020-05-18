@@ -58,7 +58,7 @@ namespace FinanceApi.Services.Grabs
             var client = new RestClient("https://www.twse.com.tw/zh/exchangeReport/STOCK_DAY");
             var request = new RestRequest(string.Empty, Method.GET);
             request.AddParameter(new Parameter("response", "json", ParameterType.QueryString));
-            request.AddParameter(new Parameter("date", filter.BeginDate.Value.Date.ToString("yyyyMMdd"), ParameterType.QueryString));
+            request.AddParameter(new Parameter("date", filter.EndDate.Value.Date.ToString("yyyyMMdd"), ParameterType.QueryString));
             request.AddParameter(new Parameter("stockNo", filter.StockId, ParameterType.QueryString));
             var response = client.Execute<TWSEStock>(request);
             if (response.ResponseStatus == ResponseStatus.Completed && response.IsSuccessful)
