@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using FinanceApi.Interfaces.Services;
 using FinanceApi.Interfaces.Services.Grabs;
 using FinanceApi.Models.Entity;
@@ -22,17 +23,27 @@ namespace WebApi.Schedules
         /// <summary>
         /// Wait Grab Second
         /// </summary>
-        private static int WaitGrabSecond { get; } = 5;
+        private static int WaitGrabSecond { get; } = 10;
 
         /// <summary>
         /// grab service
         /// </summary>
-        private readonly IStockInfoGrabService _grabService = null;
+        private readonly IStockInfoGrabService _infoGrabService = null;
 
         /// <summary>
         /// stock service
         /// </summary>
-        private readonly IStockInfoService _service = null;
+        private readonly IStockInfoService _infoService = null;
+
+        /// <summary>
+        /// grab service
+        /// </summary>
+        private readonly IStockGrabService _grabService = null;
+
+        /// <summary>
+        /// stock service
+        /// </summary>
+        private readonly IStockService _service = null;
 
         /// <summary>
         /// Logger
@@ -42,11 +53,19 @@ namespace WebApi.Schedules
         /// <summary>
         /// Initializes a new instance of the <see cref="StcokInfoGrabSchedule" /> class.
         /// </summary>
+        /// <param name="grabInfoService">grab stock info service</param>
+        /// <param name="infoService">stock info service</param>
         /// <param name="grabService">grab service</param>
         /// <param name="service">stock service</param>
         /// <param name="logger">logger of stock grab schedule</param>
-        public StcokInfoGrabSchedule(IStockInfoGrabService grabService, IStockInfoService service, ILogger<StcokInfoGrabSchedule> logger)
+        public StcokInfoGrabSchedule(IStockInfoGrabService grabInfoService,
+            IStockInfoService infoService,
+            IStockGrabService grabService,
+            IStockService service,
+            ILogger<StcokInfoGrabSchedule> logger)
         {
+            _infoService = infoService;
+            _infoGrabService = grabInfoService;
             _service = service;
             _grabService = grabService;
             _logger = logger;
@@ -58,7 +77,7 @@ namespace WebApi.Schedules
         public void GrabInfo()
         {
             var method = MethodBase.GetCurrentMethod();
-            var result = _grabService.GetList();
+            var result = _infoGrabService.GetList();
             if (result.IsSuccess && result.InnerResult.Count > 0)
             {
                 var insertItems = new List<StockInfo>();
@@ -68,14 +87,14 @@ namespace WebApi.Schedules
                     insertItems.Add(item);
                     if (insertItems.Count >= 50)
                     {
-                        count += _service.Insert(insertItems).InnerResult;
+                        count += _infoService.Insert(insertItems).InnerResult;
                         insertItems.Clear();
                     }
                 }
 
                 if (insertItems.Count > 0)
                 {
-                    count += _service.Insert(insertItems).InnerResult;
+                    count += _infoService.Insert(insertItems).InnerResult;
                     insertItems.Clear();
                 }
 
@@ -88,15 +107,13 @@ namespace WebApi.Schedules
         /// </summary>
         public void Grab()
         {
-            var method = MethodBase.GetCurrentMethod();
-            var results = _service.GetList();
+            var results = _infoService.GetList();
             if (results.IsSuccess)
             {
-                var index = 0;
                 foreach (var item in results.InnerResult)
                 {
-                    index++;
-                    BackgroundJob.Schedule<StcokGrabSchedule>(x => x.Grab(DateTime.Now, item.Id), TimeSpan.FromSeconds(index));
+                    Grab(DateTime.Now, item.Id);
+                    Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
                 }
             }
         }
@@ -109,10 +126,9 @@ namespace WebApi.Schedules
         public void GrabAll(int begin, int end)
         {
             var method = MethodBase.GetCurrentMethod();
-            var results = _service.GetList();
+            var results = _infoService.GetList();
             if (results.IsSuccess)
             {
-                var index = 0;
                 foreach (var item in results.InnerResult)
                 {
                     var stockId = int.Parse(item.Id.Substring(0, 4));
@@ -122,12 +138,31 @@ namespace WebApi.Schedules
                         {
                             if (date > MinDate)
                             {
-                                index++;
-                                BackgroundJob.Schedule<StcokGrabSchedule>(x => x.Grab(date, item.Id), TimeSpan.FromSeconds(index * WaitGrabSecond));
+                                Grab(date, item.Id);
+                                Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
                             }
                         }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// grab stock
+        /// </summary>
+        /// <param name="date">date</param>
+        /// <param name="stockId">stockId</param>
+        private void Grab(DateTime date, string stockId)
+        {
+            var result = _grabService.GetList(new FinanceApi.Models.Filter.StockFilter()
+            {
+                Date = date.Date,
+                StockId = stockId
+            });
+            if (result.IsSuccess && result.InnerResult.Count > 0)
+            {
+                var insertResult = _service.Insert(result.InnerResult);
+                _logger.LogInformation($"StockId:{stockId}, Date:{date.Date}, InsertCount:{insertResult}");
             }
         }
     }
