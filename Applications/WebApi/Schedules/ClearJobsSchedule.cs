@@ -33,7 +33,7 @@ namespace WebApi.Schedules
                     storage.Data.Delete(jobs);
                 }
 
-                var acc = storage.Data.GetEnumeration<AggregatedCounterDto>().Where(x => x.Key.Contains(SucceededStateKey)).Cast<IIdentifiedData<string>>();
+                var acc = storage.Data.GetEnumeration<AggregatedCounterDto>().Where(x => x.Key.Contains(SucceededStateKey)).Cast<IIdentifiedData<int>>();
                 if (acc.Count() > 0)
                 {
                     storage.Data.Delete(acc);
