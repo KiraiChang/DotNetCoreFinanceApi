@@ -61,7 +61,7 @@ namespace FinanceApi.Services.Grabs
             request.AddParameter(new Parameter("date", filter.EndDate.Value.Date.ToString("yyyyMMdd"), ParameterType.QueryString));
             request.AddParameter(new Parameter("stockNo", filter.StockId, ParameterType.QueryString));
             var response = client.Execute<TWSEStock>(request);
-            if (response.ResponseStatus == ResponseStatus.Completed && response.IsSuccessful)
+            if (response.ResponseStatus == ResponseStatus.Completed && response.IsSuccessful && response.Data != null)
             {
                 foreach (var item in response.Data.data)
                 {
@@ -71,10 +71,10 @@ namespace FinanceApi.Services.Grabs
                         {
                             StockId = filter.StockId,
                             Date = DateTime.Parse(item[(int)StockProps.Date], culture),
-                            OpenPrice = decimal.Parse(item[(int)StockProps.OpenPrice]),
-                            MaxPrice = decimal.Parse(item[(int)StockProps.MaxPrice]),
-                            MinPrice = decimal.Parse(item[(int)StockProps.MinPrice]),
-                            ClosePrice = decimal.Parse(item[(int)StockProps.ClosePrice]),
+                            OpenPrice = decimal.Parse(item[(int)StockProps.OpenPrice].Replace("--", "0")),
+                            MaxPrice = decimal.Parse(item[(int)StockProps.MaxPrice].Replace("--", "0")),
+                            MinPrice = decimal.Parse(item[(int)StockProps.MinPrice].Replace("--", "0")),
+                            ClosePrice = decimal.Parse(item[(int)StockProps.ClosePrice].Replace("--", "0")),
                             Decline = decimal.Parse(item[(int)StockProps.Decline].Replace("X", string.Empty)),
                             Volume = long.Parse(item[(int)StockProps.Volume].Replace(",", string.Empty)),
                             Amount = long.Parse(item[(int)StockProps.Amount].Replace(",", string.Empty)),
@@ -89,6 +89,10 @@ namespace FinanceApi.Services.Grabs
                 }
 
                 result.IsSuccess = true;
+            }
+            else
+            {
+                _logger.LogError(response.ErrorMessage);
             }
 
             return result;

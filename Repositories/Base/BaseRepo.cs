@@ -53,12 +53,12 @@ namespace FinanceApi.Repositories.Base
                 AddTypeHandler();
                 if (filter != null && conditions.Any(x => x.GetValue(filter, null) != null))
                 {
-                    sql = string.Concat(sql,
-                        " WHERE ",
-                        string.Join(" AND ", conditions.Where(x => x.GetValue(filter, null) != null)
-                                                        .Select(x => x.Name.Contains("Begin") ? $"{x.Name.Replace("Begin", string.Empty)}>=@{x.Name}"
+                    var whereItem = conditions.Where(x => x.GetValue(filter, null) != null)
+                                .Select(x => x.Name.Contains("Begin") ? $"{x.Name.Replace("Begin", string.Empty)}>=@{x.Name}"
                                                                         : x.Name.Contains("End") ? $"{x.Name.Replace("End", string.Empty)}<=@{x.Name}"
-                                                                        : $"{x.Name}=@{x.Name}")));
+                                                                        : $"{x.Name}=@{x.Name}");
+                    var whereCondition = string.Join(" AND ", whereItem);
+                    sql = string.Concat(sql, " WHERE ", whereCondition);
                     result = conn.Query<T>(sql, filter) as IList<T>;
                 }
                 else

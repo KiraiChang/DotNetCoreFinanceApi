@@ -40,9 +40,9 @@ namespace FinanceApi.Controllers.Api
         /// <summary>
         /// Get stock list
         /// </summary>
+        /// <param name="stockId">stock id</param>
         /// <param name="beginDate">filter begin date</param>
         /// <param name="endDate">filter end date</param>
-        /// <param name="stockId">stock id</param>
         /// <returns>list of stock</returns>
         [HttpGet]
         public ServiceResult<IList<Stock>> Get(string stockId, DateTime? beginDate, DateTime? endDate)

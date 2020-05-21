@@ -23,7 +23,17 @@ namespace WebApi.Schedules
         /// <summary>
         /// Wait Grab Second
         /// </summary>
-        private static int WaitGrabSecond { get; } = 3;
+        private static int WaitGrabSecond { get; } = 5;
+
+        /// <summary>
+        /// Max stock count to insert
+        /// </summary>
+        private static int MaxStockInsertCount { get; } = 300;
+
+        /// <summary>
+        /// Max stock info count to insert
+        /// </summary>
+        private static int MaxStockInfoInsertCount { get; } = 50;
 
         /// <summary>
         /// grab service
@@ -85,9 +95,10 @@ namespace WebApi.Schedules
                 foreach (var item in result.InnerResult)
                 {
                     insertItems.Add(item);
-                    if (insertItems.Count >= 50)
+                    if (insertItems.Count >= MaxStockInfoInsertCount)
                     {
                         count += _infoService.Insert(insertItems).InnerResult;
+                        _logger.LogInformation($"{method.Name} InsertCount:{count}");
                         insertItems.Clear();
                     }
                 }
@@ -95,10 +106,9 @@ namespace WebApi.Schedules
                 if (insertItems.Count > 0)
                 {
                     count += _infoService.Insert(insertItems).InnerResult;
+                    _logger.LogInformation($"{method.Name} InsertCount:{count}");
                     insertItems.Clear();
                 }
-
-                _logger.LogInformation($"{method.Name} InsertCount:{count}");
             }
         }
 
@@ -110,10 +120,25 @@ namespace WebApi.Schedules
             var results = _infoService.GetList();
             if (results.IsSuccess)
             {
+                var list = new List<Stock>();
                 foreach (var item in results.InnerResult)
                 {
-                    Grab(DateTime.Now, item.Id);
+                    list.AddRange(Grab(DateTime.Now, item.Id));
                     Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
+
+                    if (list.Count > MaxStockInsertCount)
+                    {
+                        var insertResult = _service.Insert(list);
+                        _logger.LogInformation($"InsertCount:{insertResult}");
+                        list.Clear();
+                    }
+                }
+
+                if (list.Count > 0)
+                {
+                    var insertResult = _service.Insert(list);
+                    _logger.LogInformation($"InsertCount:{insertResult}");
+                    list.Clear();
                 }
             }
         }
@@ -134,13 +159,27 @@ namespace WebApi.Schedules
                     var stockId = int.Parse(item.Id.Substring(0, 4));
                     if (stockId >= begin && stockId <= end)
                     {
+                        var list = new List<Stock>();
                         for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
                         {
                             if (date > MinDate)
                             {
-                                Grab(date, item.Id);
+                                list.AddRange(Grab(date, item.Id));
                                 Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
+                                if (list.Count > MaxStockInsertCount)
+                                {
+                                    var insertResult = _service.Insert(list);
+                                    _logger.LogInformation($"StockId:{stockId} InsertCount:{insertResult}");
+                                    list.Clear();
+                                }
                             }
+                        }
+
+                        if (list.Count > 0)
+                        {
+                            var insertResult = _service.Insert(list);
+                            _logger.LogInformation($"StockId:{stockId} InsertCount:{insertResult}");
+                            list.Clear();
                         }
                     }
                 }
@@ -152,7 +191,8 @@ namespace WebApi.Schedules
         /// </summary>
         /// <param name="date">date</param>
         /// <param name="stockId">stockId</param>
-        private void Grab(DateTime date, string stockId)
+        /// <returns>list of stock</returns>
+        private IList<Stock> Grab(DateTime date, string stockId)
         {
             var result = _grabService.GetList(new FinanceApi.Models.Filter.StockFilter()
             {
@@ -162,9 +202,10 @@ namespace WebApi.Schedules
             });
             if (result.IsSuccess && result.InnerResult.Count > 0)
             {
-                var insertResult = _service.Insert(result.InnerResult);
-                _logger.LogInformation($"StockId:{stockId}, Date:{date.Date}, InsertCount:{insertResult}");
+                return result.InnerResult;
             }
+
+            return new List<Stock>();
         }
     }
 }
