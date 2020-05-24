@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using FinanceApi.Interfaces.Services;
 using FinanceApi.Interfaces.Services.Grabs;
@@ -91,22 +92,31 @@ namespace WebApi.Schedules
             if (result.IsSuccess && result.InnerResult.Count > 0)
             {
                 var insertItems = new List<StockInfo>();
-                var count = 0;
                 foreach (var item in result.InnerResult)
                 {
                     insertItems.Add(item);
                     if (insertItems.Count >= MaxStockInfoInsertCount)
                     {
-                        count += _infoService.Insert(insertItems).InnerResult;
-                        _logger.LogInformation($"{method.Name} InsertCount:{count}");
+                        var insertResult = _infoService.Insert(insertItems);
+                        if (!insertResult.IsSuccess)
+                        {
+                            _logger.LogError(insertResult.InnerException, insertResult.ErrorMessage);
+                        }
+
+                        _logger.LogInformation($"{method.Name} InsertResult:{insertResult}");
                         insertItems.Clear();
                     }
                 }
 
                 if (insertItems.Count > 0)
                 {
-                    count += _infoService.Insert(insertItems).InnerResult;
-                    _logger.LogInformation($"{method.Name} InsertCount:{count}");
+                    var insertResult = _infoService.Insert(insertItems);
+                    if (!insertResult.IsSuccess)
+                    {
+                        _logger.LogError(insertResult.InnerException, insertResult.ErrorMessage);
+                    }
+
+                    _logger.LogInformation($"{method.Name} InsertResult:{insertResult}");
                     insertItems.Clear();
                 }
             }
@@ -124,12 +134,17 @@ namespace WebApi.Schedules
                 foreach (var item in results.InnerResult)
                 {
                     list.AddRange(Grab(DateTime.Now, item.Id));
-                    Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
+                    Thread.Sleep(TimeSpan.FromSeconds(WaitGrabSecond));
 
                     if (list.Count > MaxStockInsertCount)
                     {
                         var insertResult = _service.Insert(list);
-                        _logger.LogInformation($"InsertCount:{insertResult}");
+                        if (!insertResult.IsSuccess)
+                        {
+                            _logger.LogError(insertResult.InnerException, insertResult.ErrorMessage);
+                        }
+
+                        _logger.LogInformation($"InsertResult:{insertResult}");
                         list.Clear();
                     }
                 }
@@ -137,7 +152,12 @@ namespace WebApi.Schedules
                 if (list.Count > 0)
                 {
                     var insertResult = _service.Insert(list);
-                    _logger.LogInformation($"InsertCount:{insertResult}");
+                    if (!insertResult.IsSuccess)
+                    {
+                        _logger.LogError(insertResult.InnerException, insertResult.ErrorMessage);
+                    }
+
+                    _logger.LogInformation($"InsertResult:{insertResult}");
                     list.Clear();
                 }
             }
@@ -165,11 +185,11 @@ namespace WebApi.Schedules
                             if (date > MinDate)
                             {
                                 list.AddRange(Grab(date, item.Id));
-                                Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
+                                Thread.Sleep(TimeSpan.FromSeconds(WaitGrabSecond));
                                 if (list.Count > MaxStockInsertCount)
                                 {
                                     var insertResult = _service.Insert(list);
-                                    _logger.LogInformation($"StockId:{stockId} InsertCount:{insertResult}");
+                                    _logger.LogInformation($"StockId:{stockId} InsertResult:{insertResult}");
                                     list.Clear();
                                 }
                             }
@@ -178,7 +198,7 @@ namespace WebApi.Schedules
                         if (list.Count > 0)
                         {
                             var insertResult = _service.Insert(list);
-                            _logger.LogInformation($"StockId:{stockId} InsertCount:{insertResult}");
+                            _logger.LogInformation($"StockId:{stockId} InsertResult:{insertResult}");
                             list.Clear();
                         }
                     }
