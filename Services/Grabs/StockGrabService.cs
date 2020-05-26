@@ -107,7 +107,7 @@ namespace FinanceApi.Services.Grabs
             /// <summary>
             /// 股票資訊
             /// </summary>
-            public List<List<string>> data { get; set; }
+            public List<List<string>> data { get; set; } = new List<List<string>>();
         }
     }
 }
