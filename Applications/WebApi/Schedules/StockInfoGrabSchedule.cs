@@ -186,7 +186,7 @@ namespace WebApi.Schedules
             var results = _infoService.GetList();
             if (results.IsSuccess)
             {
-                var last = results.InnerResult.FirstOrDefault(x => int.Parse(x.Id.Substring(0, 4)) > stockId);
+                var last = results.InnerResult.FirstOrDefault(x => int.Parse(x.Id.Substring(0, 4)) >= stockId);
                 stockId = int.Parse(last.Id.Substring(0, 4));
                 var items = results.InnerResult.Where(x => x.Id.Contains(last.Id.Substring(0, 4))).ToList();
                 foreach (var item in items)
