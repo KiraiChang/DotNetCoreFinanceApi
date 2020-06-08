@@ -187,54 +187,57 @@ namespace WebApi.Schedules
             if (results.IsSuccess)
             {
                 var last = results.InnerResult.FirstOrDefault(x => int.Parse(x.Id.Substring(0, 4)) >= stockId);
-                stockId = int.Parse(last.Id.Substring(0, 4));
-                var items = results.InnerResult.Where(x => x.Id.Contains(last.Id.Substring(0, 4))).ToList();
-                foreach (var item in items)
+                if (last != null)
                 {
-                    var olds = new List<Stock>();
-                    if (stockId <= MinGrabAllDataId)
+                    stockId = int.Parse(last.Id.Substring(0, 4));
+                    var items = results.InnerResult.Where(x => x.Id.Contains(last.Id.Substring(0, 4))).ToList();
+                    foreach (var item in items)
                     {
-                        var oldResult = _service.GetList(new StockFilter()
+                        var olds = new List<Stock>();
+                        if (stockId <= MinGrabAllDataId)
                         {
-                            StockId = item.Id,
-                            BeginDate = new DateTime(2019, 1, 1),
-                            EndDate = new DateTime(2019, 2, 1),
-                        });
-                        if (oldResult.IsSuccess)
-                        {
-                            olds = oldResult.InnerResult as List<Stock>;
-                        }
-                    }
-
-                    if (olds.Count <= 0)
-                    {
-                        var list = new List<Stock>();
-                        for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
-                        {
-                            if (date > MinDate)
+                            var oldResult = _service.GetList(new StockFilter()
                             {
-                                list.AddRange(Grab(date, item.Id));
-                                Thread.Sleep(TimeSpan.FromSeconds(WaitGrabSecond));
-                                if (list.Count > MaxStockInsertCount)
-                                {
-                                    var insertResult = _service.Insert(list);
-                                    _logger.LogInformation($"StockId:{item.Id} InsertResult:{insertResult}");
-                                    list.Clear();
-                                }
+                                StockId = item.Id,
+                                BeginDate = new DateTime(2019, 1, 1),
+                                EndDate = new DateTime(2019, 2, 1),
+                            });
+                            if (oldResult.IsSuccess)
+                            {
+                                olds = oldResult.InnerResult as List<Stock>;
                             }
                         }
 
-                        if (list.Count > 0)
+                        if (olds.Count <= 0)
                         {
-                            var insertResult = _service.Insert(list);
-                            _logger.LogInformation($"StockId:{item.Id} InsertResult:{insertResult}");
-                            list.Clear();
+                            var list = new List<Stock>();
+                            for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
+                            {
+                                if (date > MinDate)
+                                {
+                                    list.AddRange(Grab(date, item.Id));
+                                    Thread.Sleep(TimeSpan.FromSeconds(WaitGrabSecond));
+                                    if (list.Count > MaxStockInsertCount)
+                                    {
+                                        var insertResult = _service.Insert(list);
+                                        _logger.LogInformation($"StockId:{item.Id} InsertResult:{insertResult}");
+                                        list.Clear();
+                                    }
+                                }
+                            }
+
+                            if (list.Count > 0)
+                            {
+                                var insertResult = _service.Insert(list);
+                                _logger.LogInformation($"StockId:{item.Id} InsertResult:{insertResult}");
+                                list.Clear();
+                            }
                         }
                     }
-                }
 
-                stockId = stockId + 1;
-                BackgroundJob.Schedule<StockInfoGrabSchedule>(x => x.GrabAll(stockId.ToString()), TimeSpan.FromSeconds(3));
+                    stockId = stockId + 1;
+                    BackgroundJob.Schedule<StockInfoGrabSchedule>(x => x.GrabAll(stockId.ToString()), TimeSpan.FromSeconds(3));
+                }
             }
         }
 
