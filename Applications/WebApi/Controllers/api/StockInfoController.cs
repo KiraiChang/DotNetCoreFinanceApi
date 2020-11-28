@@ -7,6 +7,7 @@ using FinanceApi.Models.Services;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using WebApi.Models;
 using WebApi.Schedules;
 
 namespace FinanceApi.Controllers.Api
@@ -44,7 +45,7 @@ namespace FinanceApi.Controllers.Api
         /// </summary>
         /// <returns>list of stock info</returns>
         [HttpGet]
-        public ServiceResult<IList<StockInfo>> Get()
+        public ApiResult<IList<StockInfo>> Get()
         {
             var result = _service.GetList();
             if (!result.IsSuccess)
@@ -52,13 +53,7 @@ namespace FinanceApi.Controllers.Api
                 _logger.LogError(result.InnerException, result.ErrorMessage);
             }
 
-            return new ServiceResult<IList<StockInfo>>()
-            {
-                ErrorCode = result.ErrorCode,
-                ErrorMessage = result.ErrorMessage,
-                InnerResult = result.InnerResult,
-                IsSuccess = result.IsSuccess
-            };
+            return new ApiResult<IList<StockInfo>>(result);
         }
 
         /// <summary>

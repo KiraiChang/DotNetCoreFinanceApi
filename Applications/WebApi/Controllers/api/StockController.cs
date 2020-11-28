@@ -6,6 +6,7 @@ using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using WebApi.Models;
 
 namespace FinanceApi.Controllers.Api
 {
@@ -45,7 +46,7 @@ namespace FinanceApi.Controllers.Api
         /// <param name="endDate">filter end date</param>
         /// <returns>list of stock</returns>
         [HttpGet]
-        public ServiceResult<IList<Stock>> Get(string stockId, DateTime? beginDate, DateTime? endDate)
+        public ApiResult<IList<Stock>> Get(string stockId, DateTime? beginDate, DateTime? endDate)
         {
             if (!beginDate.HasValue)
             {
@@ -68,13 +69,7 @@ namespace FinanceApi.Controllers.Api
                 _logger.LogError(result.InnerException, result.ErrorMessage);
             }
 
-            return new ServiceResult<IList<Stock>>()
-            {
-                ErrorCode = result.ErrorCode,
-                ErrorMessage = result.ErrorMessage,
-                InnerResult = result.InnerResult,
-                IsSuccess = result.IsSuccess
-            };
+            return new ApiResult<IList<Stock>>(result);
         }
     }
 }
