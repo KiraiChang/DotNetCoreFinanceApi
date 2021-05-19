@@ -4,9 +4,11 @@ using FinanceApi.Interfaces.Services;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebApi.Models;
+using WebApi.Schedules;
 
 namespace FinanceApi.Controllers.Api
 {
@@ -61,6 +63,16 @@ namespace FinanceApi.Controllers.Api
             }
 
             return new ApiResult<IList<Exchange>>(result);
+        }
+        
+        /// <summary>
+        /// grab special date exchange rate
+        /// </summary>
+        /// <param name="date">grab date</param>
+        [HttpGet("Grab/{date}")]
+        public void Grab(DateTime date)
+        {
+            BackgroundJob.Schedule<ExchangeGrabSchedule>(x => x.Grab(date), TimeSpan.FromSeconds(3));
         }
     }
 }

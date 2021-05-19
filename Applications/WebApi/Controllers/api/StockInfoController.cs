@@ -70,10 +70,20 @@ namespace FinanceApi.Controllers.Api
         /// Get stock info list
         /// </summary>
         /// <param name="stockId">begin id</param>
-        [HttpGet("GetAll/{stockId}")]
-        public void GetAll(string stockId)
+        [HttpGet("GrabById/{stockId}")]
+        public void GrabById(string stockId)
         {
             BackgroundJob.Schedule<StockInfoGrabSchedule>(x => x.GrabAll(stockId), TimeSpan.FromSeconds(3));
+        }
+        
+        /// <summary>
+        /// grab stock at special date 
+        /// </summary>
+        /// <param name="date">special date</param>
+        [HttpGet("GrabAll/{date}")]
+        public void GrabAll(DateTime date)
+        {
+            BackgroundJob.Schedule<StockInfoGrabSchedule>(x => x.Grab(date), TimeSpan.FromSeconds(3));
         }
     }
 }

@@ -134,13 +134,22 @@ namespace WebApi.Schedules
         /// </summary>
         public void Grab()
         {
+            Grab(DateTime.Now);
+        }
+
+        /// <summary>
+        /// grab stock
+        /// <param name="now">special date</param>
+        /// </summary>
+        public void Grab(DateTime now)
+        {
             var results = _infoService.GetList();
             if (results.IsSuccess)
             {
                 var list = new List<Stock>();
                 foreach (var item in results.InnerResult)
                 {
-                    list.AddRange(Grab(DateTime.Now, item.Id));
+                    list.AddRange(Grab(now, item.Id));
                     Thread.Sleep(TimeSpan.FromSeconds(WaitGrabSecond));
 
                     if (list.Count > MaxStockInsertCount)
