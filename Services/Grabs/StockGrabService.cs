@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using FinanceApi.Interfaces.Services.Grabs;
+﻿using FinanceApi.Interfaces.Services.Grabs;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Enums;
 using FinanceApi.Models.Filter;
@@ -10,6 +6,10 @@ using FinanceApi.Models.Services;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RestSharp;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace FinanceApi.Services.Grabs
 {
@@ -56,10 +56,13 @@ namespace FinanceApi.Services.Grabs
             var culture = new CultureInfo("zh-TW");
             culture.DateTimeFormat.Calendar = new TaiwanCalendar();
             var client = new RestClient("https://www.twse.com.tw/zh/exchangeReport/STOCK_DAY");
-            var request = new RestRequest(string.Empty, Method.GET);
-            request.AddParameter(new Parameter("response", "json", ParameterType.QueryString));
-            request.AddParameter(new Parameter("date", filter.EndDate.Value.Date.ToString("yyyyMMdd"), ParameterType.QueryString));
-            request.AddParameter(new Parameter("stockNo", filter.StockId, ParameterType.QueryString));
+            var request = new RestRequest()
+            {
+                Method = Method.Get
+            };
+            request.AddParameter("response", "json", ParameterType.QueryString);
+            request.AddParameter("date", filter.EndDate.Value.Date.ToString("yyyyMMdd"), ParameterType.QueryString);
+            request.AddParameter("stockNo", filter.StockId, ParameterType.QueryString);
             var response = client.Execute<TWSEStock>(request);
             if (response.ResponseStatus == ResponseStatus.Completed && response.IsSuccessful && response.Data != null)
             {

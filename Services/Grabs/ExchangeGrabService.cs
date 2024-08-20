@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Web;
-using FinanceApi.Cores.Extensions;
+﻿using FinanceApi.Cores.Extensions;
 using FinanceApi.Interfaces.Services.Grabs;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Enums;
@@ -12,7 +7,10 @@ using FinanceApi.Models.Services;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using RestSharp;
-using RestSharp.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace FinanceApi.Services.Grabs
 {
@@ -50,9 +48,12 @@ namespace FinanceApi.Services.Grabs
             var queryEndDate = filter.Date.Value.Date.ToString("yyyy/MM/dd");
 
             var client = new RestClient("https://www.taifex.com.tw/cht/3/dailyFXRate");
-            var request = new RestRequest(Method.POST);
+            var request = new RestRequest()
+            {
+                Method = Method.Post
+            };
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
-            request.AddParameter("application/x-www-form-urlencoded", $"queryStartDate={queryStartDate.UrlEncode()}&queryEndDate={queryEndDate.UrlEncode()}", "application/x-www-form-urlencoded", ParameterType.RequestBody);
+            request.AddParameter("application/x-www-form-urlencoded", $"queryStartDate={queryStartDate.ExtUrlEncode()}&queryEndDate={queryEndDate.ExtUrlEncode()}", ParameterType.RequestBody);
             var response = client.Execute(request);
             if (response.IsSuccessful)
             {
@@ -60,7 +61,7 @@ namespace FinanceApi.Services.Grabs
                 doc.LoadHtml(response.Content);
                 _logger.LogTrace(response.Content);
                 var count = 0;
-                foreach (var row in doc.DocumentNode.SelectNodes("//*[contains(@class, \"table_c\")]/tbody/tr"))
+                foreach (var row in doc.DocumentNode.SelectNodes("//*[contains(@class, \"table_c\")]/tr"))
                 {
                     count++;
                     if (count == 1)

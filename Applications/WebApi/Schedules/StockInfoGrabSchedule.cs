@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using FinanceApi.Interfaces.Services;
+﻿using FinanceApi.Interfaces.Services;
 using FinanceApi.Interfaces.Services.Grabs;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 using Hangfire;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace WebApi.Schedules
 {
@@ -141,7 +140,7 @@ namespace WebApi.Schedules
         /// grab stock
         /// <param name="now">special date</param>
         /// </summary>
-        public void Grab(DateTime now)
+        public async void Grab(DateTime now)
         {
             var results = _infoService.GetList();
             if (results.IsSuccess)
@@ -150,7 +149,7 @@ namespace WebApi.Schedules
                 foreach (var item in results.InnerResult)
                 {
                     list.AddRange(Grab(now, item.Id));
-                    Thread.Sleep(TimeSpan.FromSeconds(WaitGrabSecond));
+                    await Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
 
                     if (list.Count > MaxStockInsertCount)
                     {
@@ -183,7 +182,7 @@ namespace WebApi.Schedules
         /// grab stock
         /// </summary>
         /// <param name="rawId">stock id</param>
-        public void GrabAll(string rawId)
+        public async Task GrabAll(string rawId)
         {
             var method = MethodBase.GetCurrentMethod();
             var stockId = 1;
@@ -225,7 +224,7 @@ namespace WebApi.Schedules
                                 if (date > MinDate)
                                 {
                                     list.AddRange(Grab(date, item.Id));
-                                    Thread.Sleep(TimeSpan.FromSeconds(WaitGrabSecond));
+                                    await Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
                                     if (list.Count > MaxStockInsertCount)
                                     {
                                         var insertResult = _service.Insert(list);

@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using FinanceApi.Interfaces.Services.Grabs;
+﻿using FinanceApi.Interfaces.Services.Grabs;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Enums;
 using FinanceApi.Models.Services;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using RestSharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace FinanceApi.Services.Grabs
 {
@@ -50,7 +50,10 @@ namespace FinanceApi.Services.Grabs
             result.InnerResult = new List<StockInfo>();
 
             var client = new RestClient(Link);
-            var request = new RestRequest(Method.GET);
+            var request = new RestRequest()
+            {
+                Method = Method.Get,
+            };
             var response = client.Execute(request);
             if (response.IsSuccessful)
             {

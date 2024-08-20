@@ -1,7 +1,3 @@
-using System;
-using System.Data;
-using System.Data.Common;
-using System.Runtime.Loader;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FinanceApi.Repositories;
@@ -14,8 +10,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
+using System.Data;
+using System.Data.Common;
 using WebApi.Authorization;
 using WebApi.Schedules;
 
@@ -108,8 +105,6 @@ namespace FinanceApi
             {
                 WorkerCount = 1
             });
-
-            app.UseOwin();
 
             app.UseHangfireDashboard("/hangfire",
                 new DashboardOptions
