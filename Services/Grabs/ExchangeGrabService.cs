@@ -39,13 +39,18 @@ namespace FinanceApi.Services.Grabs
             var method = MethodBase.GetCurrentMethod();
             var result = new ServiceResult<IList<Exchange>>();
             result.InnerResult = new List<Exchange>();
-            if (!filter.Date.HasValue)
+            if (!filter.EndDate.HasValue)
             {
-                filter.Date = DateTime.Now;
+                filter.EndDate = DateTime.Now.Date;
             }
 
-            var queryStartDate = filter.Date.Value.AddDays(-10).Date.ToString("yyyy/MM/dd");
-            var queryEndDate = filter.Date.Value.Date.ToString("yyyy/MM/dd");
+            if (!filter.BeginDate.HasValue)
+            {
+                filter.BeginDate = filter.EndDate.Value.AddDays(-14).Date;
+            }
+
+            var queryStartDate = filter.BeginDate.Value.Date.ToString("yyyy/MM/dd");
+            var queryEndDate = filter.EndDate.Value.Date.ToString("yyyy/MM/dd");
 
             var client = new RestClient("https://www.taifex.com.tw/cht/3/dailyFXRate");
             var request = new RestRequest()

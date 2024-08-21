@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
 using FinanceApi.Interfaces.Services;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
-using FinanceApi.Models.Services;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 using WebApi.Models;
 using WebApi.Schedules;
 
@@ -43,19 +42,26 @@ namespace FinanceApi.Controllers.Api
         /// <summary>
         /// Get stock list
         /// </summary>
-        /// <param name="date">filter date</param>
+        /// <param name="begin">filter begin date</param>
+        /// <param name="end">filter end date</param>
         /// <returns>list of stock</returns>
         [HttpGet]
-        public ApiResult<IList<Exchange>> Get(DateTime? date)
+        public ApiResult<IList<Exchange>> Get(DateTime? begin, DateTime? end)
         {
-            if (!date.HasValue)
+            if (!end.HasValue)
             {
-                date = DateTime.Now.Date;
+                end = DateTime.Now.Date;
+            }
+
+            if (!begin.HasValue)
+            {
+                begin = end.Value.AddDays(-14).Date;
             }
 
             var result = _service.GetList(new ExchangeFilter()
             {
-                Date = date?.Date
+                BeginDate = begin?.Date,
+                EndDate = end?.Date
             });
             if (!result.IsSuccess)
             {
@@ -64,15 +70,26 @@ namespace FinanceApi.Controllers.Api
 
             return new ApiResult<IList<Exchange>>(result);
         }
-        
+
         /// <summary>
         /// grab special date exchange rate
         /// </summary>
-        /// <param name="date">grab date</param>
-        [HttpGet("Grab/{date}")]
-        public void Grab(DateTime date)
+        /// <param name="begin">filter begin date</param>
+        /// <param name="end">filter end date</param>
+        [HttpGet("Grab/{begin}/{end}")]
+        public void Grab(DateTime? begin, DateTime? end)
         {
-            BackgroundJob.Schedule<ExchangeGrabSchedule>(x => x.Grab(date), TimeSpan.FromSeconds(3));
+            if (!end.HasValue)
+            {
+                end = DateTime.Now.Date;
+            }
+
+            if (!begin.HasValue)
+            {
+                begin = end.Value.AddDays(-14).Date;
+            }
+
+            BackgroundJob.Schedule<ExchangeGrabSchedule>(x => x.Grab(begin.Value, end.Value), TimeSpan.FromSeconds(3));
         }
     }
 }

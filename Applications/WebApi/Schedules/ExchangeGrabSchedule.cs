@@ -1,7 +1,7 @@
-﻿using System;
-using FinanceApi.Interfaces.Services;
+﻿using FinanceApi.Interfaces.Services;
 using FinanceApi.Interfaces.Services.Grabs;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace WebApi.Schedules
 {
@@ -43,24 +43,26 @@ namespace WebApi.Schedules
         /// </summary>
         public void Grab()
         {
-            Grab(DateTime.Now);
+            Grab(DateTime.Now.AddDays(-14), DateTime.Now);
         }
 
         /// <summary>
         /// grab stock
         /// </summary>
-        /// <param name="date">date</param>
-        public void Grab(DateTime date)
+        /// <param name="begin">begin date</param>
+        /// <param name="end">end date</param>
+        public void Grab(DateTime begin, DateTime end)
         {
             var result = _grabService.GetList(new FinanceApi.Models.Filter.ExchangeFilter()
             {
-                Date = date.Date,
+                BeginDate = begin.Date,
+                EndDate = end.Date
             });
 
             if (result.IsSuccess && result.InnerResult.Count > 0)
             {
                 var insertResult = _service.Insert(result.InnerResult);
-                _logger.LogInformation($"Date:{date.Date}, InsertCount:{insertResult}");
+                _logger.LogInformation($"BeginDate:{begin.Date}, EndDate:{end.Date}, InsertCount:{insertResult}");
             }
         }
     }

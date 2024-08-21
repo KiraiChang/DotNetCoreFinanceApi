@@ -7,9 +7,15 @@ namespace FinanceApi.Models.Filter
     /// </summary>
     public class ExchangeFilter
     {
+
         /// <summary>
-        /// Filter by date
+        /// begin date
         /// </summary>
-        public DateTime? Date { get; set; }
+        public DateTime? BeginDate { get; set; }
+
+        /// <summary>
+        /// end date
+        /// </summary>
+        public DateTime? EndDate { get; set; }
     }
 }
