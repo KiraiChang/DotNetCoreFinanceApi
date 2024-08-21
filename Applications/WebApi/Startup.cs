@@ -54,6 +54,7 @@ namespace FinanceApi
         /// <param name="services">web site service</param>
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDistributedMemoryCache();
             services.AddOptions();
             services.AddControllers();
 

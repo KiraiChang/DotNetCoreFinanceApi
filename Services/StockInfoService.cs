@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using FinanceApi.Interfaces.Repositories;
+﻿using FinanceApi.Interfaces.Repositories;
 using FinanceApi.Interfaces.Services;
 using FinanceApi.Models.Entity;
-using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
+using System;
+using System.Collections.Generic;
 
 namespace FinanceApi.Services
 {
@@ -20,12 +19,20 @@ namespace FinanceApi.Services
         private IStockInfoRepo _repo = null;
 
         /// <summary>
+        /// Cache Service
+        /// </summary>
+        private ICacheService _cacheService = null;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="StockInfoService" /> class.
         /// </summary>
         /// <param name="repo">stock repository</param>
-        public StockInfoService(IStockInfoRepo repo)
+        /// <param name="cacheService">cache service</param>
+        public StockInfoService(IStockInfoRepo repo,
+            ICacheService cacheService)
         {
             _repo = repo;
+            _cacheService = cacheService;
         }
 
         /// <inheritdoc cref="IStockInfoService.GetList"/>
@@ -34,7 +41,10 @@ namespace FinanceApi.Services
             var result = new ServiceResult<IList<StockInfo>>();
             try
             {
-                result.InnerResult = _repo.GetList();
+                result.InnerResult = _cacheService.GetOrAddAsync(nameof(GetList), nameof(GetList), async () =>
+                {
+                    return _repo.GetList();
+                }, DateTime.Now.AddHours(1)).ConfigureAwait(false).GetAwaiter().GetResult();
                 result.IsSuccess = true;
             }
             catch (Exception ex)
