@@ -207,67 +207,66 @@ namespace WebApi.Schedules
                 if (last != null)
                 {
                     stockId = int.Parse(last.Id.Substring(0, 4));
-                    var items = results.InnerResult.Where(x => x.Id.Contains(last.Id.Substring(0, 4))).ToList();
-                    foreach (var item in items)
+                    var item = results.InnerResult.FirstOrDefault(x => x.Id.Contains(last.Id.Substring(0, 4)));
+
+                    var olds = new List<Stock>();
+                    if (stockId <= MinGrabAllDataId)
                     {
-                        var olds = new List<Stock>();
-                        if (stockId <= MinGrabAllDataId)
+                        var oldResult = _service.GetList(new StockFilter()
                         {
-                            var oldResult = _service.GetList(new StockFilter()
+                            StockId = item.Id,
+                            BeginDate = item.PublicDate,
+                            EndDate = DateTime.Now,
+                        });
+                        if (oldResult.IsSuccess)
+                        {
+                            olds = oldResult.InnerResult as List<Stock>;
+                        }
+                    }
+
+                    if (olds.Count <= 0)
+                    {
+                        var list = new List<Stock>();
+                        for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
+                        {
+                            if (date > MinDate)
                             {
-                                StockId = item.Id,
-                                BeginDate = new DateTime(2019, 1, 1),
-                                EndDate = DateTime.Now,
-                            });
-                            if (oldResult.IsSuccess)
-                            {
-                                olds = oldResult.InnerResult as List<Stock>;
+                                list.AddRange(Grab(date, item.Id));
+                                await Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
+                                if (list.Count > MaxStockInsertCount)
+                                {
+                                    var insertResult = _service.Insert(list);
+                                    _logger.LogInformation($"StockId:{item.Id} InsertResult:{insertResult}");
+                                    list.Clear();
+                                }
                             }
                         }
 
-                        if (olds.Count <= 0)
+                        if (list.Count > 0)
                         {
-                            var list = new List<Stock>();
-                            for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
-                            {
-                                if (date > MinDate)
-                                {
-                                    list.AddRange(Grab(date, item.Id));
-                                    await Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
-                                    if (list.Count > MaxStockInsertCount)
-                                    {
-                                        var insertResult = _service.Insert(list);
-                                        _logger.LogInformation($"StockId:{item.Id} InsertResult:{insertResult}");
-                                        list.Clear();
-                                    }
-                                }
-                            }
-
-                            if (list.Count > 0)
-                            {
-                                var insertResult = _service.Insert(list);
-                                _logger.LogInformation($"StockId:{item.Id} InsertResult:{insertResult}");
-                                list.Clear();
-                            }
+                            var insertResult = _service.Insert(list);
+                            _logger.LogInformation($"StockId:{item.Id} InsertResult:{insertResult}");
+                            list.Clear();
                         }
-                        else
+                    }
+                    else
+                    {
+                        var months = olds.GroupBy(x => x.Date.ToString("yyyy-MM")).ToDictionary(x => x.Key, x => x.GetEnumerator());
+                        for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
                         {
-                            var months = olds.GroupBy(x => x.Date.ToString("yyyy-MM")).ToDictionary(x => x.Key, x => x.GetEnumerator());
-                            for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
+                            if (date > MinDate && !months.ContainsKey(date.Date.ToString("yyyy-MM")))
                             {
-                                if (date > MinDate && !months.ContainsKey(date.Date.ToString("yyyy-MM")))
-                                {
-                                    var result = Grab(date, item.Id);
-                                    var insertResult = _service.Insert(result);
-                                    await Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
-                                    _logger.LogInformation($"StockId:{item.Id}, Date:{date}, InsertResult:{insertResult}");
-                                }
+                                var result = Grab(date, item.Id);
+                                var insertResult = _service.Insert(result);
+                                await Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
+                                _logger.LogInformation($"StockId:{item.Id}, Date:{date}, InsertResult:{insertResult}");
                             }
                         }
                     }
 
                     stockId = stockId + 1;
-                    BackgroundJob.Schedule<StockInfoGrabSchedule>(x => x.GrabAll(stockId.ToString()), TimeSpan.FromSeconds(3));
+                    last = results.InnerResult.FirstOrDefault(x => int.Parse(x.Id.Substring(0, 4)) >= stockId);
+                    BackgroundJob.Schedule<StockInfoGrabSchedule>(x => x.GrabAll(last.Id.ToString()), TimeSpan.FromSeconds(3));
                 }
             }
         }
