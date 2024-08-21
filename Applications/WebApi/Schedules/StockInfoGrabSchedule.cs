@@ -140,7 +140,16 @@ namespace WebApi.Schedules
         /// grab stock
         /// <param name="now">special date</param>
         /// </summary>
-        public async void Grab(DateTime now)
+        public void Grab(DateTime date)
+        {
+            GrabAsync(date).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// grab stock
+        /// <param name="now">special date</param>
+        /// </summary>
+        private async Task GrabAsync(DateTime now)
         {
             var results = _infoService.GetList();
             if (results.IsSuccess)
@@ -182,7 +191,7 @@ namespace WebApi.Schedules
         /// grab stock
         /// </summary>
         /// <param name="rawId">stock id</param>
-        public async Task GrabAll(string rawId)
+        private async Task GrabAllAsync(string rawId)
         {
             var method = MethodBase.GetCurrentMethod();
             var stockId = 1;
@@ -208,7 +217,7 @@ namespace WebApi.Schedules
                             {
                                 StockId = item.Id,
                                 BeginDate = new DateTime(2019, 1, 1),
-                                EndDate = new DateTime(2019, 2, 1),
+                                EndDate = DateTime.Now,
                             });
                             if (oldResult.IsSuccess)
                             {
@@ -241,12 +250,35 @@ namespace WebApi.Schedules
                                 list.Clear();
                             }
                         }
+                        else
+                        {
+                            var months = olds.GroupBy(x => x.Date.ToString("yyyy-MM")).ToDictionary(x => x.Key, x => x.GetEnumerator());
+                            for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
+                            {
+                                if (date > MinDate && !months.ContainsKey(date.Date.ToString("yyyy-MM")))
+                                {
+                                    var result = Grab(date, item.Id);
+                                    var insertResult = _service.Insert(result);
+                                    await Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
+                                    _logger.LogInformation($"StockId:{item.Id}, Date:{date}, InsertResult:{insertResult}");
+                                }
+                            }
+                        }
                     }
 
                     stockId = stockId + 1;
                     BackgroundJob.Schedule<StockInfoGrabSchedule>(x => x.GrabAll(stockId.ToString()), TimeSpan.FromSeconds(3));
                 }
             }
+        }
+
+        /// <summary>
+        /// grab stock
+        /// </summary>
+        /// <param name="rawId">stock id</param>
+        public void GrabAll(string rawId)
+        {
+            GrabAllAsync(rawId).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
