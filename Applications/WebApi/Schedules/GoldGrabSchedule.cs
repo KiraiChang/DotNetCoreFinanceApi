@@ -2,6 +2,7 @@
 using FinanceApi.Interfaces.Services.Grabs;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 namespace WebApi.Schedules
 {
@@ -63,6 +64,31 @@ namespace WebApi.Schedules
             {
                 var insertResult = _service.Insert(result.InnerResult);
                 _logger.LogInformation($"BeginDate:{begin.Date}, EndDate:{end.Date}, InsertCount:{insertResult}");
+            }
+        }
+
+        /// <summary>
+        /// grab stock
+        /// </summary>
+        /// <param name="begin">begin date</param>
+        /// <param name="end">end date</param>
+        public void GrabAll()
+        {
+            for (var date = new DateTime(2023, 01, 01); date < DateTime.Now; date = date.AddMonths(1))
+            {
+                var filter = new FinanceApi.Models.Filter.GoldFilter()
+                {
+                    BeginDate = date.AddDays(-14),
+                    EndDate = date
+                };
+                var result = _grabService.GetList(filter);
+
+                if (result.IsSuccess && result.InnerResult.Count > 0)
+                {
+                    var insertResult = _service.Insert(result.InnerResult);
+                    _logger.LogInformation($"BeginDate:{filter.BeginDate.Value.Date}, EndDate:{filter.EndDate.Value.Date}, InsertCount:{insertResult}");
+                }
+                Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false).GetAwaiter().GetResult();
             }
         }
     }

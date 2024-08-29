@@ -93,5 +93,14 @@ namespace FinanceApi.Controllers.Api
 
             BackgroundJob.Schedule<GoldGrabSchedule>(x => x.Grab(begin.Value, end.Value), TimeSpan.FromSeconds(3));
         }
+
+        /// <summary>
+        /// grab all date gold rate
+        /// </summary>
+        [HttpGet("GetAll")]
+        public void GrabAll()
+        {
+            BackgroundJob.Schedule<GoldGrabSchedule>(x => x.GrabAll(), TimeSpan.FromSeconds(3));
+        }
     }
 }
