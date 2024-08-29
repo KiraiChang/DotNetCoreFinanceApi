@@ -69,7 +69,7 @@ namespace FinanceApi.Services.Grabs
                             {
                                 Date = DateTime.ParseExact(values[(int)GoldColumn.Date], "yyyyMMdd", CultureInfo.InvariantCulture),
                                 Unit = string.Equals(values[(int)GoldColumn.Unit], "1公克") ? 1 : 0,
-                                Currency = string.Equals(values[(int)GoldColumn.Currency], "新台幣 (TWD)") ? 1 : 0,
+                                Currency = string.Equals(values[(int)GoldColumn.Currency], "新台幣(TWD)") ? 1 : 0,
                                 Bid = decimal.Parse(values[(int)GoldColumn.Bid]),
                                 Ask = decimal.Parse(values[(int)GoldColumn.Ask]),
                             });
