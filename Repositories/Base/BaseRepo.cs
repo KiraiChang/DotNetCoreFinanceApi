@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Dapper;
+using FinanceApi.Models.Attributes;
+using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
-using Dapper;
-using Microsoft.Extensions.Options;
 
 namespace FinanceApi.Repositories.Base
 {
@@ -85,8 +86,25 @@ namespace FinanceApi.Repositories.Base
         public int Insert(IList<T> values)
         {
             var t = typeof(T);
+            var attribute = t.GetCustomAttribute<UniqueKeyAttribute>();
             var props = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var sql = string.Concat("INSERT IGNORE INTO ",
+            var sql = string.Empty;
+            if (attribute != null)
+            {
+                sql = string.Concat("INSERT INTO ",
+                    t.Name,
+                    "(",
+                    string.Join(", ", props.Select(x => x.Name)),
+                    ") ",
+                    "VALUES(",
+                    string.Join(", ", props.Select(x => $"@{x.Name}")),
+                    ") ON DUPLICATE KEY UPDATE ",
+                    string.Join(", ", props.Where(x => !attribute.Keys.Contains(x.Name))
+                                            .Select(x => $"{x.Name} = VALUES({x.Name})")));
+            }
+            else
+            {
+                sql = string.Concat("INSERT IGNORE INTO ",
                                     t.Name,
                                     "(",
                                     string.Join(", ", props.Select(x => x.Name)),
@@ -94,6 +112,8 @@ namespace FinanceApi.Repositories.Base
                                     "VALUES(",
                                     string.Join(", ", props.Select(x => $"@{x.Name}")),
                                     ")");
+            }
+
             var result = 0;
             var provider = DbProviderFactories.GetFactory(_setting.CurrentValue.Type);
             using (var conn = provider.CreateConnection())

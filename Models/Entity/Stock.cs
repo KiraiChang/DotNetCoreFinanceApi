@@ -1,3 +1,4 @@
+using FinanceApi.Models.Attributes;
 using System;
 
 namespace FinanceApi.Models.Entity
@@ -5,6 +6,7 @@ namespace FinanceApi.Models.Entity
     /// <summary>
     /// 股票的Model
     /// </summary>
+    [UniqueKey(nameof(StockId), nameof(Date))]
     public class Stock
     {
         /// <summary>

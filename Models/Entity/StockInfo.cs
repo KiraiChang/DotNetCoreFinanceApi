@@ -1,10 +1,12 @@
-﻿using System;
+﻿using FinanceApi.Models.Attributes;
+using System;
 
 namespace FinanceApi.Models.Entity
 {
     /// <summary>
     /// stock base information
     /// </summary>
+    [UniqueKey(nameof(Id))]
     public class StockInfo
     {
         /// <summary>

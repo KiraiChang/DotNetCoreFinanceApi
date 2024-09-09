@@ -1,10 +1,12 @@
-﻿using System;
+﻿using FinanceApi.Models.Attributes;
+using System;
 
 namespace FinanceApi.Models.Entity
 {
     /// <summary>
     /// gold info
     /// </summary>
+    [UniqueKey(nameof(Date))]
     public class Gold
     {
         /// <summary>
