@@ -1,4 +1,5 @@
 ﻿using FinanceApi.Interfaces.Services.Grabs;
+using FinanceApi.Interfaces.Services.Infrastructure;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
@@ -20,15 +21,23 @@ namespace FinanceApi.Services.Grabs
         /// <summary>
         /// Logger for GoldGrabService
         /// </summary>
-        private ILogger<GoldGrabService> _logger = null;
+        private readonly ILogger<GoldGrabService> _logger = null;
+
+        /// <summary>
+        /// telegram service
+        /// </summary>
+        private readonly ITetegramService _tg = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GoldGrabService" /> class.
         /// </summary>
         /// <param name="logger">logger of GoldGrabService</param>
-        public GoldGrabService(ILogger<GoldGrabService> logger)
+        /// <param name="tg">tg service</param>
+        public GoldGrabService(ILogger<GoldGrabService> logger,
+            ITetegramService tg)
         {
             _logger = logger;
+            _tg = tg;
         }
 
         /// <inheritdoc />
@@ -48,39 +57,43 @@ namespace FinanceApi.Services.Grabs
             }
 
             var url = $"https://rate.bot.com.tw/gold/csv/{filter.EndDate.Value.ToString("yyyy-MM")}/TWD/0";
-            var client = new RestClient(url);
-            var request = new RestRequest()
-            {
-                Method = Method.Get
-            };
-            var response = client.Execute(request);
-            if (response.IsSuccessful)
+            using (var client = new RestClient(url))
             {
 
-                if (!string.IsNullOrWhiteSpace(response.Content))
+                var request = new RestRequest()
                 {
-                    var split = response.Content.Trim().Split("\r\n");
-                    for (var i = 1; i < split.Length; i++)
+                    Method = Method.Get
+                };
+                var response = client.Execute(request);
+                if (response.IsSuccessful)
+                {
+
+                    if (!string.IsNullOrWhiteSpace(response.Content))
                     {
-                        if (!string.IsNullOrWhiteSpace(split[i]))
+                        var split = response.Content.Trim().Split("\r\n");
+                        for (var i = 1; i < split.Length; i++)
                         {
-                            var values = split[i].Trim().Split(",");
-                            result.InnerResult.Add(new Gold()
+                            if (!string.IsNullOrWhiteSpace(split[i]))
                             {
-                                Date = DateTime.ParseExact(values[(int)GoldColumn.Date], "yyyyMMdd", CultureInfo.InvariantCulture),
-                                Unit = string.Equals(values[(int)GoldColumn.Unit], "1公克") ? 1 : 0,
-                                Currency = string.Equals(values[(int)GoldColumn.Currency], "新台幣(TWD)") ? 1 : 0,
-                                Bid = decimal.Parse(values[(int)GoldColumn.Bid]),
-                                Ask = decimal.Parse(values[(int)GoldColumn.Ask]),
-                            });
+                                var values = split[i].Trim().Split(",");
+                                result.InnerResult.Add(new Gold()
+                                {
+                                    Date = DateTime.ParseExact(values[(int)GoldColumn.Date], "yyyyMMdd", CultureInfo.InvariantCulture),
+                                    Unit = string.Equals(values[(int)GoldColumn.Unit], "1公克") ? 1 : 0,
+                                    Currency = string.Equals(values[(int)GoldColumn.Currency], "新台幣(TWD)") ? 1 : 0,
+                                    Bid = decimal.Parse(values[(int)GoldColumn.Bid]),
+                                    Ask = decimal.Parse(values[(int)GoldColumn.Ask]),
+                                });
+                            }
                         }
+                        result.IsSuccess = true;
                     }
-                    result.IsSuccess = true;
                 }
-            }
-            else
-            {
-                _logger.LogError(result.InnerException, $"{method.Name} raise exception in RESTSharp");
+                else
+                {
+                    _tg.SendMessage($"{method.Name} raise exception in RESTSharp");
+                    _logger.LogError(result.InnerException, $"{method.Name} raise exception in RESTSharp");
+                }
             }
             return result;
         }

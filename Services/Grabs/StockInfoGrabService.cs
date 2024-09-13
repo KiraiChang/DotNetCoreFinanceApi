@@ -1,4 +1,5 @@
 ﻿using FinanceApi.Interfaces.Services.Grabs;
+using FinanceApi.Interfaces.Services.Infrastructure;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Enums;
 using FinanceApi.Models.Services;
@@ -31,15 +32,23 @@ namespace FinanceApi.Services.Grabs
         /// <summary>
         /// Logger for ExchangeGrabService
         /// </summary>
-        private ILogger<StockInfoGrabService> _logger = null;
+        private readonly ILogger<StockInfoGrabService> _logger = null;
+
+        /// <summary>
+        /// telegram service
+        /// </summary>
+        private readonly ITetegramService _tg = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StockInfoGrabService" /> class.
         /// </summary>
         /// <param name="logger">logger of StockInfoGrabService</param>
-        public StockInfoGrabService(ILogger<StockInfoGrabService> logger)
+        /// <param name="tg">tg service</param>
+        public StockInfoGrabService(ILogger<StockInfoGrabService> logger,
+            ITetegramService tg)
         {
             _logger = logger;
+            _tg = tg;
         }
 
         /// <inheritdoc cref="IStockInfoGrabService.GetList"/>
@@ -49,52 +58,56 @@ namespace FinanceApi.Services.Grabs
             var result = new ServiceResult<IList<StockInfo>>();
             result.InnerResult = new List<StockInfo>();
 
-            var client = new RestClient(Link);
-            var request = new RestRequest()
+
+            using (var client = new RestClient(Link))
             {
-                Method = Method.Get,
-            };
-            var response = client.Execute(request);
-            if (response.IsSuccessful)
-            {
-                var doc = new HtmlDocument();
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                var encoding = Encoding.GetEncoding(950).GetString(response.RawBytes);
-                doc.LoadHtml(encoding);
-                _logger.LogTrace(encoding);
-                var table = doc.DocumentNode.SelectNodes("//body//table[contains(@class, 'h4')]");
-                foreach (var row in table.Elements())
+
+                var request = new RestRequest()
                 {
-                    if (EscapeStringList.Any(x => row.InnerHtml.Contains(x)) || row.ChildNodes.Count < 4)
+                    Method = Method.Get,
+                };
+                var response = client.Execute(request);
+                if (response.IsSuccessful)
+                {
+                    var doc = new HtmlDocument();
+                    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                    var encoding = Encoding.GetEncoding(950).GetString(response.RawBytes);
+                    doc.LoadHtml(encoding);
+                    _logger.LogTrace(encoding);
+                    var table = doc.DocumentNode.SelectNodes("//body//table[contains(@class, 'h4')]");
+                    foreach (var row in table.Elements())
                     {
-                        continue;
-                    }
+                        if (EscapeStringList.Any(x => row.InnerHtml.Contains(x)) || row.ChildNodes.Count < 4)
+                        {
+                            continue;
+                        }
 
-                    var stockInfo = new StockInfo()
-                    {
-                        Id = row.ChildNodes[(int)StockInfoProps.IdAndName].InnerHtml.Split("　")[0].Trim(),
-                        Name = row.ChildNodes[(int)StockInfoProps.IdAndName].InnerHtml.Split("　")[1].Trim(),
-                        ISINCode = row.ChildNodes[(int)StockInfoProps.ISINCode].InnerHtml.Trim(),
-                        Industry = row.ChildNodes[(int)StockInfoProps.Industry].InnerHtml.Trim(),
-                        Market = row.ChildNodes[(int)StockInfoProps.Market].InnerHtml.Trim(),
-                        PublicDate = DateTime.Parse(row.ChildNodes[(int)StockInfoProps.PublicDate].InnerHtml),
-                        CFICode = row.ChildNodes[(int)StockInfoProps.CFICode].InnerHtml.Trim(),
-                        Memo = row.ChildNodes[(int)StockInfoProps.Memo].InnerHtml.Trim(),
-                    };
-                    if (stockInfo.Id.Length > 5)
-                    {
-                        continue;
-                    }
+                        var stockInfo = new StockInfo()
+                        {
+                            Id = row.ChildNodes[(int)StockInfoProps.IdAndName].InnerHtml.Split("　")[0].Trim(),
+                            Name = row.ChildNodes[(int)StockInfoProps.IdAndName].InnerHtml.Split("　")[1].Trim(),
+                            ISINCode = row.ChildNodes[(int)StockInfoProps.ISINCode].InnerHtml.Trim(),
+                            Industry = row.ChildNodes[(int)StockInfoProps.Industry].InnerHtml.Trim(),
+                            Market = row.ChildNodes[(int)StockInfoProps.Market].InnerHtml.Trim(),
+                            PublicDate = DateTime.Parse(row.ChildNodes[(int)StockInfoProps.PublicDate].InnerHtml),
+                            CFICode = row.ChildNodes[(int)StockInfoProps.CFICode].InnerHtml.Trim(),
+                            Memo = row.ChildNodes[(int)StockInfoProps.Memo].InnerHtml.Trim(),
+                        };
+                        if (stockInfo.Id.Length > 5)
+                        {
+                            continue;
+                        }
 
-                    result.InnerResult.Add(stockInfo);
+                        result.InnerResult.Add(stockInfo);
+                    }
+                    result.IsSuccess = true;
+                }
+                else
+                {
+                    _tg.SendMessage($"{method.Name} raise exception in RESTSharp");
+                    _logger.LogError(result.InnerException, $"{method.Name} raise exception in RESTSharp");
                 }
             }
-            else
-            {
-                _logger.LogError(result.InnerException, $"{method.Name} raise exception in RESTSharp");
-            }
-
-            result.IsSuccess = true;
             return result;
         }
     }

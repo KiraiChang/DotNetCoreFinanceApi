@@ -1,5 +1,6 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using FinanceApi.Models.Settings;
 using FinanceApi.Repositories;
 using FinanceApi.Repositories.Base;
 using FinanceApi.Services;
@@ -66,6 +67,7 @@ namespace FinanceApi
             services.AddSwaggerGen();
 
             services.Configure<ConnectionSetting>(Configuration.GetSection("ConnectionStrings"));
+            services.Configure<TelegramSetting>(Configuration.GetSection("TelegramSettings"));
         }
 
         /// <summary>
