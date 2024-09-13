@@ -15,13 +15,13 @@ namespace FinanceApi.Services.Infrastructure
         /// <summary>
         /// setting of telegram
         /// </summary>
-        private readonly IOptionsMonitor<TelegramSettings> _settings = null;
+        private readonly IOptionsMonitor<TelegramSetting> _settings = null;
 
         /// <summary>
         /// acot.
         /// </summary>
         /// <param name="settings">setting of telegram</param>
-        public TelegramService(IOptionsMonitor<TelegramSettings> settings)
+        public TelegramService(IOptionsMonitor<TelegramSetting> settings)
         {
             _settings = settings;
         }
