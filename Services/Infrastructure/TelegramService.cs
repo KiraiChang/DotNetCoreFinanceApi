@@ -49,7 +49,7 @@ namespace FinanceApi.Services.Infrastructure
         /// <returns>telegram url</returns>
         private async Task<string> GetUrl(string token, string method)
         {
-            return string.Format("https://api.telegram.org/bot{0}/{1}", token, method);
+            return await Task.FromResult(string.Format("https://api.telegram.org/bot{0}/{1}", token, method));
         }
     }
 }

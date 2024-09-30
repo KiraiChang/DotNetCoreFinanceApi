@@ -16,9 +16,14 @@ namespace FinanceApi.Services
     public class CacheService : ICacheService
     {
         /// <summary>
+        /// fail message template
+        /// </summary>
+        private const string FailsMessageTemplate = "{methodName} fails";
+
+        /// <summary>
         /// lock
         /// </summary>
-        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new ConcurrentDictionary<string, SemaphoreSlim>();
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new();
 
         /// <summary>
         /// cache
@@ -57,7 +62,7 @@ namespace FinanceApi.Services
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, message: FailsMessageTemplate, nameof(GetAsync));
             }
 
             return default;

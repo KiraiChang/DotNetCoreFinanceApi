@@ -4,6 +4,7 @@ using FinanceApi.Models.Entity;
 using FinanceApi.Models.Services;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FinanceApi.Services
 {
@@ -16,12 +17,12 @@ namespace FinanceApi.Services
         /// <summary>
         /// Stock Repository
         /// </summary>
-        private IStockInfoRepo _repo = null;
+        private readonly IStockInfoRepo _repo = null;
 
         /// <summary>
         /// Cache Service
         /// </summary>
-        private ICacheService _cacheService = null;
+        private readonly ICacheService _cacheService = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StockInfoService" /> class.
@@ -43,7 +44,7 @@ namespace FinanceApi.Services
             {
                 result.InnerResult = _cacheService.GetOrAddAsync(nameof(GetList), nameof(GetList), async () =>
                 {
-                    return _repo.GetList();
+                    return await Task.FromResult(_repo.GetList());
                 }, DateTime.Now.AddHours(1)).ConfigureAwait(false).GetAwaiter().GetResult();
                 result.IsSuccess = true;
             }

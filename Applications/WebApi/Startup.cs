@@ -63,6 +63,10 @@ namespace FinanceApi
                 {
                     x.UseMemoryStorage();
                 });
+            services.AddHangfireServer(x =>
+            {
+                x.WorkerCount = 1;
+            });
 
             services.AddSwaggerGen();
 
@@ -104,11 +108,6 @@ namespace FinanceApi
 
             app.UseAuthorization();
 
-            app.UseHangfireServer(new BackgroundJobServerOptions
-            {
-                WorkerCount = 1
-            });
-
             app.UseHangfireDashboard("/hangfire",
                 new DashboardOptions
                 {
@@ -135,10 +134,11 @@ namespace FinanceApi
 
             GlobalConfiguration.Configuration.UseAutofacActivator(this.AutofacContainer);
 
-            RecurringJob.AddOrUpdate<ExchangeGrabSchedule>(x => x.Grab(), Cron.Daily(16));
-            RecurringJob.AddOrUpdate<StockInfoGrabSchedule>(x => x.Grab(), Cron.Daily(16));
-            RecurringJob.AddOrUpdate<GoldGrabSchedule>(x => x.Grab(), Cron.Daily(16));
-            RecurringJob.AddOrUpdate<ClearJobsSchedule>(x => x.ClearSucceededJobs(), Cron.Daily(16));
+
+            RecurringJob.AddOrUpdate<ExchangeGrabSchedule>(nameof(ExchangeGrabSchedule), x => x.Grab(), Cron.Daily(16));
+            RecurringJob.AddOrUpdate<StockInfoGrabSchedule>(nameof(StockInfoGrabSchedule), x => x.Grab(), Cron.Daily(16));
+            RecurringJob.AddOrUpdate<GoldGrabSchedule>(nameof(GoldGrabSchedule), x => x.Grab(), Cron.Daily(16));
+            RecurringJob.AddOrUpdate<ClearJobsSchedule>(nameof(ClearJobsSchedule), x => x.ClearSucceededJobs(), Cron.Daily(16));
         }
     }
 }
