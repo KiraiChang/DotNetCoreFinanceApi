@@ -103,7 +103,7 @@ namespace WebApi.Schedules
                     insertItems.Add(item);
                     if (insertItems.Count >= MaxStockInfoInsertCount)
                     {
-                        var insertResult = _infoService.Insert(insertItems);
+                        var insertResult = _infoService.Insert(insertItems).ConfigureAwait(false).GetAwaiter().GetResult();
                         if (!insertResult.IsSuccess)
                         {
                             _logger.LogError(insertResult.InnerException, insertResult.ErrorMessage);
@@ -116,7 +116,7 @@ namespace WebApi.Schedules
 
                 if (insertItems.Count > 0)
                 {
-                    var insertResult = _infoService.Insert(insertItems);
+                    var insertResult = _infoService.Insert(insertItems).ConfigureAwait(false).GetAwaiter().GetResult();
                     if (!insertResult.IsSuccess)
                     {
                         _logger.LogError(insertResult.InnerException, insertResult.ErrorMessage);
@@ -151,7 +151,7 @@ namespace WebApi.Schedules
         /// </summary>
         private async Task GrabAsync(DateTime now)
         {
-            var results = _infoService.GetList();
+            var results = await _infoService.GetList();
             if (results.IsSuccess)
             {
                 var list = new List<Stock>();
@@ -162,7 +162,7 @@ namespace WebApi.Schedules
 
                     if (list.Count > MaxStockInsertCount)
                     {
-                        var insertResult = _service.Insert(list);
+                        var insertResult = await _service.Insert(list);
                         if (!insertResult.IsSuccess)
                         {
                             _logger.LogError(insertResult.InnerException, insertResult.ErrorMessage);
@@ -175,7 +175,7 @@ namespace WebApi.Schedules
 
                 if (list.Count > 0)
                 {
-                    var insertResult = _service.Insert(list);
+                    var insertResult = await _service.Insert(list);
                     if (!insertResult.IsSuccess)
                     {
                         _logger.LogError(insertResult.InnerException, insertResult.ErrorMessage);
@@ -200,7 +200,7 @@ namespace WebApi.Schedules
                 stockId = int.Parse(rawId);
             }
 
-            var results = _infoService.GetList();
+            var results = await _infoService.GetList();
             if (results.IsSuccess)
             {
                 var last = results.InnerResult.FirstOrDefault(x => int.Parse(x.Id.Substring(0, 4)) >= stockId);
@@ -210,18 +210,15 @@ namespace WebApi.Schedules
                     var item = results.InnerResult.FirstOrDefault(x => x.Id.Contains(last.Id.Substring(0, 4)));
 
                     var olds = new List<Stock>();
-                    if (stockId <= MinGrabAllDataId)
+                    var oldResult = await _service.GetList(new StockFilter()
                     {
-                        var oldResult = _service.GetList(new StockFilter()
-                        {
-                            StockId = item.Id,
-                            BeginDate = item.PublicDate,
-                            EndDate = DateTime.Now,
-                        });
-                        if (oldResult.IsSuccess)
-                        {
-                            olds = oldResult.InnerResult as List<Stock>;
-                        }
+                        StockId = item.Id,
+                        BeginDate = item.PublicDate,
+                        EndDate = DateTime.Now,
+                    });
+                    if (oldResult.IsSuccess)
+                    {
+                        olds = oldResult.InnerResult as List<Stock>;
                     }
 
                     if (olds.Count <= 0)
@@ -252,21 +249,31 @@ namespace WebApi.Schedules
                     else
                     {
                         var months = olds.GroupBy(x => x.Date.ToString("yyyy-MM")).ToDictionary(x => x.Key, x => x.GetEnumerator());
-                        for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
+                        var date = item.PublicDate;
+                        for (; date < DateTime.Now; date = date.AddMonths(1))
                         {
-                            if (date > MinDate && !months.ContainsKey(date.Date.ToString("yyyy-MM")))
-                            {
-                                var result = Grab(date, item.Id);
-                                var insertResult = _service.Insert(result);
-                                await Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
-                                _logger.LogInformation($"StockId:{item.Id}, Date:{date}, InsertResult:{insertResult}");
-                            }
+                            await CheckAndInsert(item, months, date);
+                        }
+                        if (date.Month <= DateTime.Now.Month)
+                        {
+                            await CheckAndInsert(item, months, date);
                         }
                     }
 
                     stockId = stockId + 1;
                     last = results.InnerResult.FirstOrDefault(x => int.Parse(x.Id.Substring(0, 4)) >= stockId);
                     BackgroundJob.Schedule<StockInfoGrabSchedule>(x => x.GrabAll(last.Id.ToString()), TimeSpan.FromSeconds(3));
+                }
+            }
+
+            async Task CheckAndInsert(StockInfo item, Dictionary<string, IEnumerator<Stock>> months, DateTime date)
+            {
+                if (date > MinDate && !months.ContainsKey(date.Date.ToString("yyyy-MM")))
+                {
+                    var result = Grab(date, item.Id);
+                    var insertResult = await _service.Insert(result);
+                    await Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
+                    _logger.LogInformation($"StockId:{item.Id}, Date:{date}, InsertResult:{insertResult}");
                 }
             }
         }

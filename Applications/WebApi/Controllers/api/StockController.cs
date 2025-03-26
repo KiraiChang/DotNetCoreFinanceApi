@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
 using FinanceApi.Interfaces.Services;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
-using FinanceApi.Models.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using WebApi.Models;
 
 namespace FinanceApi.Controllers.Api
@@ -46,7 +46,7 @@ namespace FinanceApi.Controllers.Api
         /// <param name="endDate">filter end date</param>
         /// <returns>list of stock</returns>
         [HttpGet]
-        public ApiResult<IList<Stock>> Get(string stockId, DateTime? beginDate, DateTime? endDate)
+        public async Task<ApiResult<IList<Stock>>> Get(string stockId, DateTime? beginDate, DateTime? endDate)
         {
             if (!beginDate.HasValue)
             {
@@ -58,7 +58,7 @@ namespace FinanceApi.Controllers.Api
                 endDate = DateTime.Now.Date;
             }
 
-            var result = _service.GetList(new StockFilter()
+            var result = await _service.GetList(new StockFilter()
             {
                 StockId = stockId,
                 BeginDate = beginDate?.Date,

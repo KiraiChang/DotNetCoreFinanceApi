@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using FinanceApi.Interfaces.Repositories;
+﻿using FinanceApi.Interfaces.Repositories;
 using FinanceApi.Interfaces.Services;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FinanceApi.Services
 {
@@ -29,12 +30,12 @@ namespace FinanceApi.Services
         }
 
         /// <inheritdoc cref="IExchangeService.GetList"/>
-        public ServiceResult<IList<Exchange>> GetList(ExchangeFilter filter)
+        public async Task<ServiceResult<IList<Exchange>>> GetList(ExchangeFilter filter)
         {
             var result = new ServiceResult<IList<Exchange>>();
             try
             {
-                result.InnerResult = _repo.GetList(filter);
+                result.InnerResult = await _repo.GetList(filter);
                 result.IsSuccess = true;
             }
             catch (Exception ex)
@@ -47,12 +48,12 @@ namespace FinanceApi.Services
         }
 
         /// <inheritdoc cref="IExchangeService.Insert(IList{Exchange})"/>
-        public ServiceResult<int> Insert(IList<Exchange> values)
+        public async Task<ServiceResult<int>> Insert(IList<Exchange> values)
         {
             var result = new ServiceResult<int>();
             try
             {
-                result.InnerResult = _repo.Insert(values);
+                result.InnerResult = await _repo.Insert(values);
                 result.IsSuccess = true;
             }
             catch (Exception ex)

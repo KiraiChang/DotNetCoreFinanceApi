@@ -4,6 +4,7 @@ using FinanceApi.Models.Filter;
 using FinanceApi.Repositories.Base;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FinanceApi.Repositories
 {
@@ -22,9 +23,9 @@ namespace FinanceApi.Repositories
         }
 
         /// <inheritdoc/>
-        public IList<Gold> GetList(GoldFilter filter)
+        public async Task<IList<Gold>> GetList(GoldFilter filter)
         {
-            return base.GetList<GoldFilter>(filter);
+            return await base.GetList<GoldFilter>(filter);
         }
     }
 }

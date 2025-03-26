@@ -5,6 +5,7 @@ using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FinanceApi.Services
 {
@@ -29,12 +30,12 @@ namespace FinanceApi.Services
         }
 
         /// <inheritdoc />
-        public ServiceResult<IList<Gold>> GetList(GoldFilter filter)
+        public async Task<ServiceResult<IList<Gold>>> GetList(GoldFilter filter)
         {
             var result = new ServiceResult<IList<Gold>>();
             try
             {
-                result.InnerResult = _repo.GetList(filter);
+                result.InnerResult = await _repo.GetList(filter);
                 result.IsSuccess = true;
             }
             catch (Exception ex)
@@ -47,12 +48,12 @@ namespace FinanceApi.Services
         }
 
         /// <inheritdoc />
-        public ServiceResult<int> Insert(IList<Gold> values)
+        public async Task<ServiceResult<int>> Insert(IList<Gold> values)
         {
             var result = new ServiceResult<int>();
             try
             {
-                result.InnerResult = _repo.Insert(values);
+                result.InnerResult = await _repo.Insert(values);
                 result.IsSuccess = true;
             }
             catch (Exception ex)

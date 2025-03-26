@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using FinanceApi.Models.Entity;
+﻿using FinanceApi.Models.Entity;
 using FinanceApi.Models.Services;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FinanceApi.Interfaces.Services
 {
@@ -15,13 +14,13 @@ namespace FinanceApi.Interfaces.Services
         /// get list of StockInfo info
         /// </summary>
         /// <returns>list of StockInfo info</returns>
-        ServiceResult<IList<StockInfo>> GetList();
+        Task<ServiceResult<IList<StockInfo>>> GetList();
 
         /// <summary>
         /// Insert StockInfo into db
         /// </summary>
         /// <param name="values">list of StockInfo</param>
         /// <returns>service result of effect count</returns>
-        ServiceResult<int> Insert(IList<StockInfo> values);
+        Task<ServiceResult<int>> Insert(IList<StockInfo> values);
     }
 }

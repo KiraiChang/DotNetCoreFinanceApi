@@ -2,6 +2,7 @@
 using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FinanceApi.Interfaces.Services
 {
@@ -15,13 +16,13 @@ namespace FinanceApi.Interfaces.Services
         /// </summary>
         /// <param name="filter">filter condition</param>
         /// <returns>service result of gold list</returns>
-        ServiceResult<IList<Gold>> GetList(GoldFilter filter);
+        Task<ServiceResult<IList<Gold>>> GetList(GoldFilter filter);
 
         /// <summary>
         /// Insert into db
         /// </summary>
         /// <param name="values">list of gold</param>
         /// <returns>service result of effect count</returns>
-        ServiceResult<int> Insert(IList<Gold> values);
+        Task<ServiceResult<int>> Insert(IList<Gold> values);
     }
 }

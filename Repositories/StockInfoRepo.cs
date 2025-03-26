@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using FinanceApi.Interfaces.Repositories;
+﻿using FinanceApi.Interfaces.Repositories;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
 using FinanceApi.Repositories.Base;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FinanceApi.Repositories
 {
@@ -24,9 +23,9 @@ namespace FinanceApi.Repositories
         }
 
         /// <inheritdoc cref="IStockInfoRepo.GetList"/>
-        public IList<StockInfo> GetList()
+        public async Task<IList<StockInfo>> GetList()
         {
-            return base.GetList<StockFilter>(null);
+            return await base.GetList<StockFilter>(null);
         }
     }
 }

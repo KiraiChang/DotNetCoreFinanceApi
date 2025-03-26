@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace FinanceApi.Repositories.Base
 {
@@ -35,7 +36,7 @@ namespace FinanceApi.Repositories.Base
         /// <typeparam name="T1">type of condition</typeparam>
         /// <param name="filter">filter condition</param>
         /// <returns>result of type T</returns>
-        public IList<T> GetList<T1>(T1 filter)
+        public async Task<IList<T>> GetList<T1>(T1 filter)
         {
             var t = typeof(T);
             var props = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -60,15 +61,15 @@ namespace FinanceApi.Repositories.Base
                                                                         : $"{x.Name}=@{x.Name}");
                     var whereCondition = string.Join(" AND ", whereItem);
                     sql = string.Concat(sql, " WHERE ", whereCondition);
-                    result = conn.Query<T>(sql, filter) as IList<T>;
+                    result = (await conn.QueryAsync<T>(sql, filter)).ToList();
                 }
                 else
                 {
-                    result = conn.Query<T>(sql) as IList<T>;
+                    result = (await conn.QueryAsync<T>(sql)).ToList();
                 }
             }
 
-            return result;
+            return await Task.FromResult(result);
         }
 
         /// <summary>
@@ -83,45 +84,48 @@ namespace FinanceApi.Repositories.Base
         /// </summary>
         /// <param name="values">list of value</param>
         /// <returns>effect count</returns>
-        public int Insert(IList<T> values)
+        public async Task<int> Insert(IList<T> values)
         {
-            var t = typeof(T);
-            var attribute = t.GetCustomAttribute<UniqueKeyAttribute>();
-            var props = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var sql = string.Empty;
-            if (attribute != null)
-            {
-                sql = string.Concat("INSERT INTO ",
-                    t.Name,
-                    "(",
-                    string.Join(", ", props.Select(x => x.Name)),
-                    ") ",
-                    "VALUES(",
-                    string.Join(", ", props.Select(x => $"@{x.Name}")),
-                    ") ON DUPLICATE KEY UPDATE ",
-                    string.Join(", ", props.Where(x => !attribute.Keys.Contains(x.Name))
-                                            .Select(x => $"{x.Name} = VALUES({x.Name})")));
-            }
-            else
-            {
-                sql = string.Concat("INSERT IGNORE INTO ",
-                                    t.Name,
-                                    "(",
-                                    string.Join(", ", props.Select(x => x.Name)),
-                                    ") ",
-                                    "VALUES(",
-                                    string.Join(", ", props.Select(x => $"@{x.Name}")),
-                                    ")");
-            }
-
             var result = 0;
-            var provider = DbProviderFactories.GetFactory(_setting.CurrentValue.Type);
-            using (var conn = provider.CreateConnection())
+            if (values.Count() > 0)
             {
-                conn.ConnectionString = _setting.CurrentValue.Connection;
-                conn.Open();
-                AddTypeHandler();
-                result = conn.Execute(sql, values);
+                var t = typeof(T);
+                var attribute = t.GetCustomAttribute<UniqueKeyAttribute>();
+                var props = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                var sql = string.Empty;
+                if (attribute != null)
+                {
+                    sql = string.Concat("INSERT INTO ",
+                        t.Name,
+                        "(",
+                        string.Join(", ", props.Select(x => x.Name)),
+                        ") ",
+                        "VALUES(",
+                        string.Join(", ", props.Select(x => $"@{x.Name}")),
+                        ") ON DUPLICATE KEY UPDATE ",
+                        string.Join(", ", props.Where(x => !attribute.Keys.Contains(x.Name))
+                                                .Select(x => $"{x.Name} = VALUES({x.Name})")));
+                }
+                else
+                {
+                    sql = string.Concat("INSERT IGNORE INTO ",
+                                        t.Name,
+                                        "(",
+                                        string.Join(", ", props.Select(x => x.Name)),
+                                        ") ",
+                                        "VALUES(",
+                                        string.Join(", ", props.Select(x => $"@{x.Name}")),
+                                        ")");
+                }
+
+                var provider = DbProviderFactories.GetFactory(_setting.CurrentValue.Type);
+                using (var conn = provider.CreateConnection())
+                {
+                    conn.ConnectionString = _setting.CurrentValue.Connection;
+                    conn.Open();
+                    AddTypeHandler();
+                    result = await conn.ExecuteAsync(sql, values);
+                }
             }
 
             return result;

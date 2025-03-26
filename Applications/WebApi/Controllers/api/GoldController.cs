@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using WebApi.Models;
 using WebApi.Schedules;
 
@@ -46,7 +47,7 @@ namespace FinanceApi.Controllers.Api
         /// <param name="endDate">filter end date</param>
         /// <returns>list of Gold</returns>
         [HttpGet]
-        public ApiResult<IList<Gold>> Get(DateTime? beginDate, DateTime? endDate)
+        public async Task<ApiResult<IList<Gold>>> Get(DateTime? beginDate, DateTime? endDate)
         {
             if (!beginDate.HasValue)
             {
@@ -58,7 +59,7 @@ namespace FinanceApi.Controllers.Api
                 endDate = DateTime.Now.Date;
             }
 
-            var result = _service.GetList(new GoldFilter()
+            var result = await _service.GetList(new GoldFilter()
             {
                 BeginDate = beginDate?.Date,
                 EndDate = endDate?.Date

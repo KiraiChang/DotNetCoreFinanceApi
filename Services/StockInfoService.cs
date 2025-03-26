@@ -37,15 +37,15 @@ namespace FinanceApi.Services
         }
 
         /// <inheritdoc cref="IStockInfoService.GetList"/>
-        public ServiceResult<IList<StockInfo>> GetList()
+        public async Task<ServiceResult<IList<StockInfo>>> GetList()
         {
             var result = new ServiceResult<IList<StockInfo>>();
             try
             {
-                result.InnerResult = _cacheService.GetOrAddAsync(nameof(GetList), nameof(GetList), async () =>
+                result.InnerResult = await _cacheService.GetOrAddAsync(nameof(GetList), nameof(GetList), async () =>
                 {
-                    return await Task.FromResult(_repo.GetList());
-                }, DateTime.Now.AddHours(1)).ConfigureAwait(false).GetAwaiter().GetResult();
+                    return await _repo.GetList();
+                }, DateTime.Now.AddHours(1));
                 result.IsSuccess = true;
             }
             catch (Exception ex)
@@ -58,12 +58,12 @@ namespace FinanceApi.Services
         }
 
         /// <inheritdoc cref="IStockInfoService.Insert(IList{StockInfo})"/>
-        public ServiceResult<int> Insert(IList<StockInfo> values)
+        public async Task<ServiceResult<int>> Insert(IList<StockInfo> values)
         {
             var result = new ServiceResult<int>();
             try
             {
-                result.InnerResult = _repo.Insert(values);
+                result.InnerResult = await _repo.Insert(values);
                 result.IsSuccess = true;
             }
             catch (Exception ex)

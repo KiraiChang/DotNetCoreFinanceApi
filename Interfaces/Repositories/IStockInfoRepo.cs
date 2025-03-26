@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using FinanceApi.Models.Entity;
-using FinanceApi.Models.Filter;
+﻿using FinanceApi.Models.Entity;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FinanceApi.Interfaces.Repositories
 {
@@ -13,13 +13,13 @@ namespace FinanceApi.Interfaces.Repositories
         /// Get StockInfo list
         /// </summary>
         /// <returns>list of stock</returns>
-        IList<StockInfo> GetList();
+        Task<IList<StockInfo>> GetList();
 
         /// <summary>
         /// Insert StockInfo to db
         /// </summary>
         /// <param name="values">list of stock</param>
         /// <returns>effect count</returns>
-        int Insert(IList<StockInfo> values);
+        Task<int> Insert(IList<StockInfo> values);
     }
 }

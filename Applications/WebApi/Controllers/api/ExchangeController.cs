@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using WebApi.Models;
 using WebApi.Schedules;
 
@@ -46,7 +47,7 @@ namespace FinanceApi.Controllers.Api
         /// <param name="end">filter end date</param>
         /// <returns>list of stock</returns>
         [HttpGet]
-        public ApiResult<IList<Exchange>> Get(DateTime? begin, DateTime? end)
+        public async Task<ApiResult<IList<Exchange>>> Get(DateTime? begin, DateTime? end)
         {
             if (!end.HasValue)
             {
@@ -58,7 +59,7 @@ namespace FinanceApi.Controllers.Api
                 begin = end.Value.AddDays(-14).Date;
             }
 
-            var result = _service.GetList(new ExchangeFilter()
+            var result = await _service.GetList(new ExchangeFilter()
             {
                 BeginDate = begin?.Date,
                 EndDate = end?.Date

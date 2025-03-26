@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
 using FinanceApi.Interfaces.Services;
 using FinanceApi.Models.Entity;
-using FinanceApi.Models.Filter;
-using FinanceApi.Models.Services;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using WebApi.Models;
 using WebApi.Schedules;
 
@@ -45,9 +44,9 @@ namespace FinanceApi.Controllers.Api
         /// </summary>
         /// <returns>list of stock info</returns>
         [HttpGet]
-        public ApiResult<IList<StockInfo>> Get()
+        public async Task<ApiResult<IList<StockInfo>>> Get()
         {
-            var result = _service.GetList();
+            var result = await _service.GetList();
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.InnerException, result.ErrorMessage);
@@ -75,7 +74,7 @@ namespace FinanceApi.Controllers.Api
         {
             BackgroundJob.Schedule<StockInfoGrabSchedule>(x => x.GrabAll(stockId), TimeSpan.FromSeconds(3));
         }
-        
+
         /// <summary>
         /// grab stock at special date 
         /// </summary>
