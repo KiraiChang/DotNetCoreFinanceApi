@@ -58,7 +58,10 @@ namespace FinanceApi.Services
             try
             {
                 var bytes = await _distributedCache.GetAsync(key);
-                return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(bytes));
+                if (bytes != null)
+                {
+                    return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(bytes));
+                }
             }
             catch (Exception ex)
             {
