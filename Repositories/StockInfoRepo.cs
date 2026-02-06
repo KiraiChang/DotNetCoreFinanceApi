@@ -23,9 +23,9 @@ namespace FinanceApi.Repositories
         }
 
         /// <inheritdoc cref="IStockInfoRepo.GetList"/>
-        public async Task<IList<StockInfo>> GetList()
+        public async Task<IList<StockInfo>> GetList(StockInfoFilter filter)
         {
-            return await base.GetList<StockFilter>(null);
+            return await base.GetList<StockInfoFilter>(filter);
         }
     }
 }

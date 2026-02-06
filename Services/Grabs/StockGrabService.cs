@@ -55,6 +55,10 @@ namespace FinanceApi.Services.Grabs
             if (!filter.EndDate.HasValue)
             {
                 filter.EndDate = DateTime.Now;
+            } 
+            else if (filter.EndDate > DateTime.Now)
+            {
+                filter.EndDate = DateTime.Now;
             }
 
             if (string.IsNullOrWhiteSpace(filter.StockId))

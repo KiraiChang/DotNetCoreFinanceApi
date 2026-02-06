@@ -1,5 +1,6 @@
 using FinanceApi.Interfaces.Services;
 using FinanceApi.Models.Entity;
+using FinanceApi.Models.Filter;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -46,7 +47,7 @@ namespace FinanceApi.Controllers.Api
         [HttpGet]
         public async Task<ApiResult<IList<StockInfo>>> Get()
         {
-            var result = await _service.GetList();
+            var result = await _service.GetList(new StockInfoFilter());
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.InnerException, result.ErrorMessage);

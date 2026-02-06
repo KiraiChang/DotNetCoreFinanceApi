@@ -97,32 +97,43 @@ namespace WebApi.Schedules
             var result = _infoGrabService.GetList();
             if (result.IsSuccess && result.InnerResult.Count > 0)
             {
+                var originItems = _infoService.GetList(new StockInfoFilter()).ConfigureAwait(false).GetAwaiter().GetResult().InnerResult;
+                var originMap = originItems.ToDictionary(x => x.Id, x => x);
                 var insertItems = new List<StockInfo>();
+                var map = new Dictionary<string, StockInfo>();
                 foreach (var item in result.InnerResult)
                 {
-                    insertItems.Add(item);
-                    if (insertItems.Count >= MaxStockInfoInsertCount)
+                    map.Add(item.Id, item);
+                    if (!originMap.ContainsKey(item.Id))
                     {
-                        var insertResult = _infoService.Insert(insertItems).ConfigureAwait(false).GetAwaiter().GetResult();
+                        item.IsListed = true;
+                        insertItems.Add(item);
+                    }
+                }
+
+                foreach (var item in originItems)
+                {
+                    if (!map.ContainsKey(item.Id))
+                    {
+                        item.IsListed = false;
+                        insertItems.Add(item);
+                    }
+                }
+
+                return;
+                if (insertItems.Count > 0)
+                {
+                    for(var i = 0; i < insertItems.Count; i += MaxStockInfoInsertCount)
+                    {
+                        var items = insertItems.Skip(i * MaxStockInfoInsertCount).Take(MaxStockInfoInsertCount).ToList();
+                        var insertResult = _infoService.Insert(items).ConfigureAwait(false).GetAwaiter().GetResult();
                         if (!insertResult.IsSuccess)
                         {
                             _logger.LogError(insertResult.InnerException, insertResult.ErrorMessage);
                         }
 
                         _logger.LogInformation($"{method.Name} InsertResult:{insertResult}");
-                        insertItems.Clear();
                     }
-                }
-
-                if (insertItems.Count > 0)
-                {
-                    var insertResult = _infoService.Insert(insertItems).ConfigureAwait(false).GetAwaiter().GetResult();
-                    if (!insertResult.IsSuccess)
-                    {
-                        _logger.LogError(insertResult.InnerException, insertResult.ErrorMessage);
-                    }
-
-                    _logger.LogInformation($"{method.Name} InsertResult:{insertResult}");
                     insertItems.Clear();
                 }
             }

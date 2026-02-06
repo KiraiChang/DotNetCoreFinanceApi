@@ -48,5 +48,10 @@ namespace FinanceApi.Models.Entity
         /// Memo
         /// </summary>
         public string Memo { get; set; }
+
+        /// <summary>
+        /// is Listed
+        /// </summary>
+        public bool IsListed { get; set; }
     }
 }

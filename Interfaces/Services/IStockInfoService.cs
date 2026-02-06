@@ -1,4 +1,5 @@
 ﻿using FinanceApi.Models.Entity;
+using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,6 +16,13 @@ namespace FinanceApi.Interfaces.Services
         /// </summary>
         /// <returns>list of StockInfo info</returns>
         Task<ServiceResult<IList<StockInfo>>> GetList();
+
+        /// <summary>
+        /// get list of StockInfo info
+        /// </summary>
+        /// <param name="filter">filter param</param>
+        /// <returns>list of StockInfo info</returns>
+        Task<ServiceResult<IList<StockInfo>>> GetList(StockInfoFilter filter);
 
         /// <summary>
         /// Insert StockInfo into db
