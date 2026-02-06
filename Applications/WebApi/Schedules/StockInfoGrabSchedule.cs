@@ -120,7 +120,6 @@ namespace WebApi.Schedules
                     }
                 }
 
-                return;
                 if (insertItems.Count > 0)
                 {
                     for(var i = 0; i < insertItems.Count; i += MaxStockInfoInsertCount)
@@ -211,7 +210,10 @@ namespace WebApi.Schedules
                 stockId = int.Parse(rawId);
             }
 
-            var results = await _infoService.GetList();
+            var results = await _infoService.GetList(new StockInfoFilter()
+            {
+                IsListed = true
+            });
             if (results.IsSuccess)
             {
                 var last = results.InnerResult.FirstOrDefault(x => int.Parse(x.Id.Substring(0, 4)) >= stockId);
