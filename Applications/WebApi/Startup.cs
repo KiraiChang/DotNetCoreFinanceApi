@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using System.Data;
 using System.Data.Common;
 using WebApi.Authorization;
@@ -128,7 +128,7 @@ namespace FinanceApi
                 endpoints.MapControllers();
             });
 
-            DbProviderFactories.RegisterFactory("System.Data.MySql", MySqlClientFactory.Instance);
+            DbProviderFactories.RegisterFactory("MySqlConnector", MySqlConnectorFactory.Instance);
 
             this.AutofacContainer = app.ApplicationServices.GetAutofacRoot();
 
