@@ -124,7 +124,8 @@ namespace WebApi.Schedules
                 {
                     for(var i = 0; i < insertItems.Count; i += MaxStockInfoInsertCount)
                     {
-                        var items = insertItems.Skip(i * MaxStockInfoInsertCount).Take(MaxStockInfoInsertCount).ToList();
+                        var count = Math.Min(MaxStockInfoInsertCount, insertItems.Count - i);
+                        var items = insertItems.GetRange(i, count);
                         var insertResult = _infoService.Insert(items).ConfigureAwait(false).GetAwaiter().GetResult();
                         if (!insertResult.IsSuccess)
                         {
