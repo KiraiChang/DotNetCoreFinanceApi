@@ -4,6 +4,7 @@ using FinanceApi.Models.Entity;
 using FinanceApi.Models.Enums;
 using FinanceApi.Models.Filter;
 using FinanceApi.Models.Services;
+using FinanceApi.Services.Grabs.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RestSharp;
@@ -118,18 +119,6 @@ namespace FinanceApi.Services.Grabs
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// 台灣證交所股票Api返還結構
-        /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "*", Justification = "According for api result")]
-        internal class TWSEStock
-        {
-            /// <summary>
-            /// 股票資訊
-            /// </summary>
-            public List<List<string>> data { get; set; } = new List<List<string>>();
         }
     }
 }
