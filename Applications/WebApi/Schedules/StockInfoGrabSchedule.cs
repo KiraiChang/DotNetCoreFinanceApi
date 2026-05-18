@@ -1,4 +1,5 @@
-﻿using FinanceApi.Interfaces.Services;
+﻿using Autofac.Features.Indexed;
+using FinanceApi.Interfaces.Services;
 using FinanceApi.Interfaces.Services.Grabs;
 using FinanceApi.Models.Entity;
 using FinanceApi.Models.Filter;
@@ -198,6 +199,7 @@ namespace WebApi.Schedules
             }
         }
 
+
         /// <summary>
         /// grab stock
         /// </summary>
@@ -205,78 +207,107 @@ namespace WebApi.Schedules
         private async Task GrabAllAsync(string rawId)
         {
             var method = MethodBase.GetCurrentMethod();
-            var stockId = 1;
-            if (!string.IsNullOrWhiteSpace(rawId))
-            {
-                stockId = int.Parse(rawId);
-            }
-
             var results = await _infoService.GetList(new StockInfoFilter()
             {
                 IsListed = true
             });
             if (results.IsSuccess)
             {
-                var last = results.InnerResult.FirstOrDefault(x => int.Parse(x.Id.Substring(0, 4)) >= stockId);
-                if (last != null)
+                var index = 0;
+                foreach (var item in results.InnerResult)
                 {
-                    stockId = int.Parse(last.Id.Substring(0, 4));
-                    var item = results.InnerResult.FirstOrDefault(x => x.Id.Contains(last.Id.Substring(0, 4)));
+                    if (item.Id.Equals(rawId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        await GrabByInfoAsync(item);
 
-                    var olds = new List<Stock>();
-                    var oldResult = await _service.GetList(new StockFilter()
-                    {
-                        StockId = item.Id,
-                        BeginDate = item.PublicDate,
-                        EndDate = DateTime.Now,
-                    });
-                    if (oldResult.IsSuccess)
-                    {
-                        olds = oldResult.InnerResult as List<Stock>;
+                        index = index + 1;
+                        BackgroundJob.Schedule<StockInfoGrabSchedule>(x => x.GrabAllByIndex(index), TimeSpan.FromSeconds(3));
+                        return;
                     }
+                    index++; 
+                }
+            }
+        }
 
-                    if (olds.Count <= 0)
+        /// <summary>
+        /// grab stock
+        /// </summary>
+        /// <param name="index">index of stock info</param>
+        private async Task GrabAllByIndexAsync(int index)
+        {
+            var method = MethodBase.GetCurrentMethod();
+            var results = await _infoService.GetList(new StockInfoFilter()
+            {
+                IsListed = true
+            });
+            if (results.IsSuccess)
+            {
+                if (results.InnerResult.Count > index)
+                {
+                    var item = results.InnerResult[index];
+
+                    await GrabByInfoAsync(item);
+
+                    index = index + 1;
+                    BackgroundJob.Schedule<StockInfoGrabSchedule>(x => x.GrabAllByIndex(index), TimeSpan.FromSeconds(3));
+                }
+            }
+        }
+
+        /// <summary>
+        /// grab data by stock info
+        /// </summary>
+        /// <param name="item">stock info</param>
+        private async Task GrabByInfoAsync(StockInfo item)
+        {
+            var olds = new List<Stock>();
+            var oldResult = await _service.GetList(new StockFilter()
+            {
+                StockId = item.Id,
+                BeginDate = item.PublicDate,
+                EndDate = DateTime.Now,
+            });
+            if (oldResult.IsSuccess)
+            {
+                olds = oldResult.InnerResult as List<Stock>;
+            }
+
+            if (olds.Count <= 0)
+            {
+                var list = new List<Stock>();
+                for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
+                {
+                    if (date > MinDate)
                     {
-                        var list = new List<Stock>();
-                        for (var date = item.PublicDate; date < DateTime.Now; date = date.AddMonths(1))
-                        {
-                            if (date > MinDate)
-                            {
-                                list.AddRange(Grab(date, item.Id));
-                                await Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
-                                if (list.Count > MaxStockInsertCount)
-                                {
-                                    var insertResult = _service.Insert(list);
-                                    _logger.LogInformation($"StockId:{item.Id} InsertResult:{insertResult}");
-                                    list.Clear();
-                                }
-                            }
-                        }
-
-                        if (list.Count > 0)
+                        list.AddRange(Grab(date, item.Id));
+                        await Task.Delay(TimeSpan.FromSeconds(WaitGrabSecond));
+                        if (list.Count > MaxStockInsertCount)
                         {
                             var insertResult = _service.Insert(list);
                             _logger.LogInformation($"StockId:{item.Id} InsertResult:{insertResult}");
                             list.Clear();
                         }
                     }
-                    else
-                    {
-                        var months = olds.GroupBy(x => x.Date.ToString("yyyy-MM")).ToDictionary(x => x.Key, x => x.GetEnumerator());
-                        var date = item.PublicDate;
-                        for (; date < DateTime.Now; date = date.AddMonths(1))
-                        {
-                            await CheckAndInsert(item, months, date);
-                        }
-                        if (date.Month <= DateTime.Now.Month)
-                        {
-                            await CheckAndInsert(item, months, date);
-                        }
-                    }
+                }
 
-                    stockId = stockId + 1;
-                    last = results.InnerResult.FirstOrDefault(x => int.Parse(x.Id.Substring(0, 4)) >= stockId);
-                    BackgroundJob.Schedule<StockInfoGrabSchedule>(x => x.GrabAll(last.Id.ToString()), TimeSpan.FromSeconds(3));
+                if (list.Count > 0)
+                {
+                    var insertResult = _service.Insert(list);
+                    _logger.LogInformation($"StockId:{item.Id} InsertResult:{insertResult}");
+                    list.Clear();
+                }
+            }
+            else
+            {
+                var months = olds.GroupBy(x => x.Date.ToString("yyyy-MM")).ToDictionary(x => x.Key, x => x.GetEnumerator());
+                var date = item.PublicDate;
+                for (; date < DateTime.Now; date = date.AddMonths(1))
+                {
+                    await CheckAndInsert(item, months, date);
+                }
+                if (date.Month <= DateTime.Now.Month)
+                {
+                    await CheckAndInsert(item, months, date);
                 }
             }
 
@@ -299,6 +330,15 @@ namespace WebApi.Schedules
         public void GrabAll(string rawId)
         {
             GrabAllAsync(rawId).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// grab stock
+        /// </summary>
+        /// <param name="index">index of stock info</param>
+        public void GrabAllByIndex(int index)
+        {
+            GrabAllByIndexAsync(index).GetAwaiter().GetResult();
         }
 
         /// <summary>
